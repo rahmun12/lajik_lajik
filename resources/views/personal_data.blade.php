@@ -1,4 +1,4 @@
-<!-- @extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 <div class="container">
@@ -124,20 +124,18 @@
                 Daftar Persyaratan
                 <div class="mt-4">
                     <h6>Persyaratan yang dibutuhkan:</h6>
-                    <ul class="list-group">
-                        <li class="list-group-item">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Fotokopi KTP
-                        </li>
-                        <li class="list-group-item">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Fotokopi KK
-                        </li>
-                        <li class="list-group-item">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Surat Pengantar RT/RW
-                        </li>
-                    </ul>
+                    @foreach($jenisIzins as $jenis)
+                    <div id="requirements-{{ $jenis->id }}" class="requirements-list">
+                        <ul class="list-group">
+                            @foreach($jenis->persyaratans as $persyaratan)
+                            <li class="list-group-item">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                {{ $persyaratan->nama_persyaratan }}
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -150,13 +148,45 @@
     </form>
 </div>
 
+@push('styles')
+<style>
+    .requirements-list {
+        display: none;
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+    }
+    .requirements-list.show {
+        display: block;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Show/hide requirements when jenis izin changes
+        $('select[name="jenis_izin"]').on('change', function() {
+            const selectedId = $(this).val();
+            
+            // Hide all requirements first
+            $('.requirements-list').removeClass('show');
+            
+            if (selectedId) {
+                // Show requirements for selected jenis izin
+                $(`#requirements-${selectedId}`).addClass('show');
+            }
+        });
         
+        // Trigger change event if there's a previously selected value (after validation error)
+        if ($('select[name="jenis_izin"]').val()) {
+            $('select[name="jenis_izin"]').trigger('change');
+        }
     });
 </script>
 @endpush
 
-@endsection -->
+@endsection
