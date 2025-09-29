@@ -102,6 +102,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
         Data Pengajuan Izin
         <div class="card mb-4">

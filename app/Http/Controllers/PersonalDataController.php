@@ -78,7 +78,7 @@ class PersonalDataController extends Controller
                 $fotoKkPath = $request->file('foto_kk')->store('kk_photos', 'public');
                 $data['foto_kk'] = $fotoKkPath;
             }
-            
+
             // Save personal data
             $data = $request->only([
                 'nama', 'alamat_jalan', 'rt', 'rw', 
@@ -112,5 +112,42 @@ class PersonalDataController extends Controller
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Display the admin view for reviewing and approving personal data
+     */
+    public function penyesuaianData()
+    {
+        // Get all personal data with their related izin pengajuan and field verifications
+        $data = PersonalData::with(['izinPengajuan.jenisIzin', 'fieldVerifications'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+            
+        return view('penyesuaian_data', compact('data'));
+    }
+
+    /**
+     * Update the verification status of personal data
+     */
+    public function updateVerification(Request $request, $id)
+    {
+        $request->validate([
+            'is_verified' => 'required|boolean',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        $personalData = PersonalData::findOrFail($id);
+        $personalData->is_verified = $request->is_verified;
+        $personalData->verification_notes = $request->notes;
+        $personalData->verified_by = auth()->id();
+        $personalData->verified_at = now();
+        $personalData->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status verifikasi berhasil diperbarui',
+            'data' => $personalData
+        ]);
     }
 }
