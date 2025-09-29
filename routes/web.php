@@ -37,6 +37,9 @@ Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionControlle
 
 // Admin Routes (Protected by auth middleware)
 Route::middleware(['auth'])->group(function () {
+    // Verification update route
+    Route::post('/verification/update', [PersonalDataController::class, 'updateVerification'])
+        ->name('verification.update');
     // Halaman penyesuaian data
     Route::get('/admin/penyesuaian-data', [PersonalDataController::class, 'penyesuaianData'])
         ->name('admin.penyesuaian-data');
