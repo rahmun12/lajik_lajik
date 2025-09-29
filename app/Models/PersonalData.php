@@ -17,5 +17,19 @@ class PersonalData extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function izinPengajuan()
+    {
+        return $this->hasMany(IzinPengajuan::class);
+    }
+
+    public function fieldVerifications()
+    {
+        return $this->hasMany(FieldVerification::class);
+    }
     
+    public function getFieldVerificationStatus($fieldName)
+    {
+        $verification = $this->fieldVerifications->firstWhere('field_name', $fieldName);
+        return $verification ? $verification->is_verified : false;
+    }
 }
