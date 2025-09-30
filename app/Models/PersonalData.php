@@ -9,7 +9,8 @@ class PersonalData extends Model
     protected $fillable = [
         'user_id', 'nama', 'alamat_jalan', 'rt', 'rw',
         'kecamatan', 'kelurahan', 'kode_pos', 'no_telp',
-        'no_ktp', 'no_kk', 'foto_ktp', 'foto_kk'
+        'no_ktp', 'no_kk', 'foto_ktp', 'foto_kk', 'foto_selfie_ktp',
+        'is_verified', 'verification_notes', 'verified_by', 'verified_at'
     ];
 
     public function user()

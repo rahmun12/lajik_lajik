@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\IzinPengajuan;
 use App\Models\PersonalData;
 use App\Models\JenisIzin;
+use App\Models\FieldVerification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -68,22 +69,11 @@ class PersonalDataController extends Controller
                 Auth::login($user);
             }
 
-            // Handle file uploads
-            if ($request->hasFile('foto_ktp')) {
-                $fotoKtpPath = $request->file('foto_ktp')->store('ktp_photos', 'public');
-                $data['foto_ktp'] = $fotoKtpPath;
-            }
-            
-            if ($request->hasFile('foto_kk')) {
-                $fotoKkPath = $request->file('foto_kk')->store('kk_photos', 'public');
-                $data['foto_kk'] = $fotoKkPath;
-            }
-
             // Save personal data
             $data = $request->only([
                 'nama', 'alamat_jalan', 'rt', 'rw', 
                 'kabupaten_kota', 'kecamatan', 'kelurahan', 'kode_pos',
-                'no_telp', 'no_ktp', 'no_kk', 'foto_ktp', 'foto_kk'
+                'no_telp', 'no_ktp', 'no_kk'
             ]);
             
             $data['user_id'] = Auth::id();
@@ -148,6 +138,135 @@ class PersonalDataController extends Controller
             'success' => true,
             'message' => 'Status verifikasi berhasil diperbarui',
             'data' => $personalData
+        ]);
+    }
+
+    /**
+     * Verify a specific requirement for personal data
+     */
+    public function verifyRequirement(Request $request)
+    {
+        $request->validate([
+            'personal_data_id' => 'required|exists:personal_data,id',
+            'field_name' => 'required|string',
+            'is_verified' => 'required|boolean',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        $verification = FieldVerification::updateOrCreate(
+            [
+                'personal_data_id' => $request->personal_data_id,
+                'field_name' => $request->field_name
+            ],
+            [
+                'is_verified' => $request->is_verified,
+                'verified_by' => auth()->id(),
+                'verified_at' => now(),
+                'notes' => $request->notes
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status verifikasi persyaratan berhasil diperbarui',
+            'data' => $verification
+        ]);
+    }
+
+    /**
+     * Handle document upload for personal data
+     */
+    public function uploadDocument(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:personal_data,id',
+            'doc_type' => 'required|in:ktp,kk,selfie',
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        $personalData = PersonalData::findOrFail($request->id);
+        $fieldMap = [
+            'ktp' => 'foto_ktp',
+            'kk' => 'foto_kk',
+            'selfie' => 'foto_selfie_ktp'
+        ];
+
+        // Handle file upload
+        if ($request->hasFile('document')) {
+            // Delete old file if exists
+            $oldFile = $personalData->{$fieldMap[$request->doc_type]};
+            if ($oldFile && file_exists(storage_path('app/public/' . $oldFile))) {
+                unlink(storage_path('app/public/' . $oldFile));
+            }
+
+            // Store new file
+            $path = $request->file('document')->store('documents', 'public');
+            
+            // Update personal data with new file path
+            $personalData->{$fieldMap[$request->doc_type]} = $path;
+            $personalData->save();
+
+            // Update or create field verification
+            FieldVerification::updateOrCreate(
+                [
+                    'personal_data_id' => $personalData->id,
+                    'field_name' => $request->doc_type
+                ],
+                [
+                    'is_verified' => true,
+                    'verified_by' => auth()->id(),
+                    'verified_at' => now(),
+                    'notes' => $request->notes
+                ]
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dokumen berhasil diupload',
+                'data' => [
+                    'id' => $personalData->id,
+                    'document_path' => $path,
+                    'document_url' => asset('storage/' . $path)
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal mengupload dokumen'
+        ], 400);
+    }
+
+    /**
+     * Toggle requirement verification status
+     */
+    public function toggleRequirementVerification(Request $request)
+    {
+        $request->validate([
+            'personal_data_id' => 'required|exists:personal_data,id',
+            'field_name' => 'required|string',
+            'is_verified' => 'required|boolean',
+            'notes' => 'nullable|string|max:1000'
+        ]);
+
+        $verification = FieldVerification::updateOrCreate(
+            [
+                'personal_data_id' => $request->personal_data_id,
+                'field_name' => $request->field_name
+            ],
+            [
+                'is_verified' => $request->is_verified,
+                'verified_by' => auth()->id(),
+                'verified_at' => now(),
+                'notes' => $request->notes
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status verifikasi persyaratan berhasil diperbarui',
+            'data' => $verification
         ]);
     }
 }

@@ -143,17 +143,59 @@
 
 <!-- Detail Modal -->
 <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="detailModalLabel">Detail Data Pengajuan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" id="closeDetailModal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="detailModalBody">
-                <!-- Content will be loaded dynamically via JavaScript -->
+                <div class="container-fluid">
+                    <div id="detailContent">
+                        <!-- Content will be loaded here -->
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Document Upload Modal -->
+<div class="modal fade" id="documentUploadModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Upload Dokumen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="documentUploadForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="id" id="documentItemId">
+                    <input type="hidden" name="doc_type" id="documentType">
+                    <div class="mb-3">
+                        <label for="documentFile" class="form-label">Pilih File</label>
+                        <input class="form-control" type="file" id="documentFile" name="document" accept="image/*,.pdf" required>
+                        <div class="form-text">Format: JPG, PNG, atau PDF (Maks. 2MB)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="documentNotes" class="form-label">Catatan (Opsional)</label>
+                        <textarea class="form-control" id="documentNotes" name="notes" rows="2"></textarea>
+                    </div>
+                </form>
+                <div id="uploadPreview" class="text-center mt-3 d-none">
+                    <img id="documentPreview" src="" class="img-fluid mb-2" style="max-height: 200px;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="submitDocumentUpload">
+                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Upload
+                </button>
             </div>
         </div>
     </div>
@@ -204,9 +246,17 @@
         vertical-align: middle;
     }
     .verified-field {
-        text-decoration: line-through;
         color: #28a745;
-        opacity: 0.7;
+        font-weight: 500;
+        position: relative;
+        padding-left: 5px;
+    }
+    .verified-field:before {
+        content: '✓';
+        margin-right: 5px;
+    }
+    tr.verified-row {
+        background-color: #f8fff8;
     }
 </style>
 @endpush
@@ -222,6 +272,7 @@
         const itemId = $(this).data('item-id');
         const isChecked = $(this).is(':checked');
         const $label = $(`label[for="${field}-${itemId}"]`);
+        const $row = $(this).closest('tr');
         
         // Show loading state
         const $checkbox = $(this);
@@ -232,6 +283,16 @@
             $label.addClass('verified-field');
         } else {
             $label.removeClass('verified-field');
+        }
+        
+        // Check if all fields are verified
+        const allFieldsVerified = $row.find('.field-verification:checked').length === $row.find('.field-verification').length;
+        
+        // Toggle row highlight based on verification status
+        if (allFieldsVerified) {
+            $row.addClass('verified-row');
+        } else {
+            $row.removeClass('verified-row');
         }
         
         // Save verification status
@@ -284,9 +345,26 @@
         });
     }
 
+    // Function to check and update row verification status
+    function updateRowVerificationStatus(row) {
+        const $row = $(row);
+        const allChecked = $row.find('.field-verification').length === $row.find('.field-verification:checked').length;
+        if (allChecked) {
+            $row.addClass('verified-row');
+        } else {
+            $row.removeClass('verified-row');
+        }
+    }
+
     $(document).ready(function() {
         // Initialize DataTable
         var table = $('#verificationTable').DataTable({
+            initComplete: function() {
+                // Update row verification status on page load
+                this.api().rows().every(function() {
+                    updateRowVerificationStatus(this.node());
+                });
+            },
             responsive: true,
             order: [[0, 'desc']],
             language: {
@@ -294,61 +372,185 @@
             }
         });
 
-        // Handle verification buttons
-        $('.verify-btn').on('click', function() {
+        // Handle verification buttons - using event delegation for dynamic content
+        $(document).on('click', '.verify-btn', function() {
             const id = $(this).data('id');
             const isVerified = $(this).data('verified');
+            const $button = $(this);
             
-            $('#verificationId').val(id);
-            $('#verificationStatus').val(isVerified);
-            $('#verificationNotes').val('');
+            // Disable button to prevent double click
+            $button.prop('disabled', true);
             
-            if (isVerified == 1) {
-                $('#notesModalLabel').html('<i class="fas fa-check-circle me-2"></i>Verifikasi Data');
-            } else {
+            // Check if this is a rejection (Tolak)
+            if (isVerified == 0) {
+                $('#verificationId').val(id);
+                $('#verificationStatus').val(0);
+                $('#verificationNotes').val('');
                 $('#notesModalLabel').html('<i class="fas fa-times-circle me-2"></i>Tolak Data');
+                $('#notesModal').modal('show');
+                
+                // Re-enable button when modal is hidden
+                $('#notesModal').on('hidden.bs.modal', function() {
+                    $button.prop('disabled', false);
+                });
+            } else {
+                // For approval (Setuju), show confirmation
+                if (confirm('Apakah Anda yakin ingin memverifikasi data ini?')) {
+                    const formData = {
+                        _token: '{{ csrf_token() }}',
+                        id: id,
+                        is_verified: 1,
+                        notes: 'Data telah diverifikasi.'
+                    };
+
+                    $.ajax({
+                        url: '/admin/personal-data/verify/' + id,
+                        type: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            if (response.success) {
+                                window.location.reload();
+                            } else {
+                                alert(response.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                                $button.prop('disabled', false);
+                            }
+                        },
+                        error: function(xhr) {
+                            alert('Terjadi kesalahan. Silakan coba lagi.');
+                            console.error(xhr.responseText);
+                            $button.prop('disabled', false);
+                        }
+                    });
+                } else {
+                    $button.prop('disabled', false);
+                }
             }
-            
-            $('#notesModal').modal('show');
         });
 
-        // Submit verification
+        // Submit verification (for rejection with notes)
         $('#submitVerification').on('click', function() {
+            const $button = $(this);
+            const notes = $('#verificationNotes').val().trim();
+            
+            if (!$('#verificationStatus').val() && !notes) {
+                alert('Harap isi alasan penolakan.');
+                return;
+            }
+            
+            $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...');
+            
+            const id = $('#verificationId').val();
             const formData = {
                 _token: '{{ csrf_token() }}',
-                id: $('#verificationId').val(),
+                id: id,
                 is_verified: $('#verificationStatus').val(),
-                notes: $('#verificationNotes').val()
+                notes: notes || 'Permohonan ditolak.'
             };
-
+            
             $.ajax({
-                url: '{{ route("personal-data.verify") }}',
+                url: '/admin/personal-data/verify/' + id,
                 type: 'POST',
                 data: formData,
                 success: function(response) {
                     if (response.success) {
                         window.location.reload();
+                    } else {
+                        alert(response.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                        $button.prop('disabled', false).text('Simpan');
+                        $('#notesModal').modal('hide');
                     }
                 },
                 error: function(xhr) {
                     alert('Terjadi kesalahan. Silakan coba lagi.');
                     console.error(xhr.responseText);
+                    $button.prop('disabled', false).text('Simpan');
                 }
             });
         });
 
         // View details
-        $('.view-details').on('click', function() {
+        $(document).on('click', '.view-details', function() {
             const item = $(this).data('item');
+            console.log('View details clicked', item);
+            
+            // Generate requirements status
+            const requirementsHtml = `
+                <div class="mb-4">
+                    <h6 class="border-bottom pb-2">Verifikasi Persyaratan</h6>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="card-title mb-0">${item.izin_pengajuan ? item.izin_pengajuan[0].jenis_izin.nama_izin : 'Jenis Izin'}</h6>
+                                        <span class="badge ${item.is_verified ? 'bg-success' : 'bg-warning'}">
+                                            ${item.is_verified ? 'Terverifikasi' : 'Belum Diverifikasi'}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Status Verifikasi</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   id="verification-status" 
+                                                   ${item.is_verified ? 'checked' : ''}
+                                                   data-item-id="${item.id}">
+                                            <label class="form-check-label" for="verification-status">
+                                                ${item.is_verified ? 'Sudah Diverifikasi' : 'Belum Diverifikasi'}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Generate document upload section
+            const documentPreviews = `
+                <div class="mb-4">
+                    <h6 class="border-bottom pb-2">Unggah Dokumen Pendukung</h6>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                ${item.document_path ? 
+                                    `<img src="/storage/${item.document_path}" 
+                                          class="img-fluid img-thumbnail document-preview mb-2" 
+                                          style="max-height: 200px; cursor: pointer;" 
+                                          onclick="viewDocument('${item.document_path}')">` :
+                                    '<div class="text-muted py-4 border rounded">Belum ada dokumen diunggah</div>'
+                                }
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Dokumen Pendukung</h6>
+                                    <p class="text-muted small mb-0">Unggah dokumen pendukung dalam format JPG, PNG, atau PDF (maks. 2MB)</p>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-primary upload-doc" 
+                                            data-doc-type="document" 
+                                            data-item-id="${item.id}">
+                                        <i class="fas fa-upload me-1"></i>
+                                        ${item.document_path ? 'Ganti Dokumen' : 'Unggah Dokumen'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Generate personal information
             let detailsHtml = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6>Data Pribadi</h6>
-                        <table class="table table-sm">
-                            <tr>
-                                <th>Nama Lengkap</th>
-                                <td>${item.nama}</td>
-                            </tr>
+                <div class="mb-4">
+                    <h4 class="mb-4">Detail Data Pengajuan</h4>
+                    <h6 class="border-bottom pb-2">Data Pribadi</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <th width="40%">Nama Lengkap</th>
+                                    <td>${item.nama || '-'}</td>
+                                </tr>
                             <tr>
                                 <th>No. KTP</th>
                                 <td>${item.no_ktp || '-'}</td>
@@ -393,6 +595,10 @@
                         </table>
                     </div>
                 </div>
+                
+                ${requirementsHtml}
+                
+                ${documentPreviews}
                 <div class="row mt-3">
                     <div class="col-12">
                         <h6>Informasi Pengajuan</h6>
@@ -430,8 +636,325 @@
                 </div>
             `;
             
-            $('#detailModalBody').html(detailsHtml);
+            // Combine all sections - removed duplicate document upload section
+            const modalContent = `
+                <div class="container-fluid">
+                    ${detailsHtml}
+                </div>
+            `;
+            
+            // Update modal content
+            $('#detailModal .modal-body').html(modalContent);
+            
+            // Initialize tooltips
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            
+            // Get or create modal instance
+            const modalElement = document.getElementById('detailModal');
+            let modal = bootstrap.Modal.getInstance(modalElement);
+            
+            if (!modal) {
+                modal = new bootstrap.Modal(modalElement, {
+                    backdrop: true,
+                    keyboard: true
+                });
+            }
+            
+            // Show the modal
+            modal.show();
+            
+            // Ensure body has correct classes
+            $('body').addClass('modal-open');
+            
+            console.log('Modal shown');
         });
     });
+
+    // Handle modal close
+    function closeModal() {
+        const modalElement = document.getElementById('detailModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if (modal) {
+            modal.hide();
+        }
+        // Clean up
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
+    }
+    
+    // Close button click
+    $(document).on('click', '#closeDetailModal, .btn-secondary[data-bs-dismiss="modal"]', function(e) {
+        e.preventDefault();
+        closeModal();
+    });
+    
+    // Close when clicking outside
+    $(document).on('click', '.modal', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+    
+    // Clean up when modal is hidden
+    $('#detailModal').on('hidden.bs.modal', function () {
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();
+    });
+    
+    // Handle requirement verification
+    $(document).on('change', '.requirement-check', function() {
+        const requirement = $(this).data('requirement');
+        const itemId = $(this).data('item-id');
+        const isVerified = $(this).is(':checked');
+        const $label = $(this).siblings('label');
+        
+        // Show loading state
+        $(this).prop('disabled', true);
+        
+        // Update UI immediately
+        if (isVerified) {
+            $label.removeClass('text-muted').addClass('text-success fw-bold');
+            $label.find('.badge')
+                .removeClass('bg-warning')
+                .addClass('bg-success')
+                .text('Terverifikasi');
+        } else {
+            $label.removeClass('text-success fw-bold').addClass('text-muted');
+            $label.find('.badge')
+                .removeClass('bg-success')
+                .addClass('bg-warning')
+                .text('Belum Diverifikasi');
+        }
+        
+        // Send verification status to server
+        $.ajax({
+            url: '/admin/personal-data/verify-requirement',
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: itemId,
+                requirement: requirement,
+                is_verified: isVerified ? 1 : 0
+            },
+            success: function(response) {
+                if (!response.success) {
+                    // Revert on error
+                    $(this).prop('checked', !isVerified);
+                    alert('Gagal memperbarui status verifikasi');
+                }
+            },
+            error: function() {
+                // Revert on error
+                $(this).prop('checked', !isVerified);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+            },
+            complete: function() {
+                $(this).prop('disabled', false);
+            }.bind(this)
+        });
+    });
+
+    // Handle document upload
+    $(document).on('click', '.upload-doc', function(e) {
+        e.preventDefault();
+        const docType = $(this).data('doc');
+        const itemId = $(this).data('item-id');
+        const $button = $(this);
+        
+        // Create file input
+        const $fileInput = $('<input type="file" accept="image/*" style="display: none;">');
+        
+        $fileInput.on('change', function() {
+            const file = this.files[0];
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('_token', '{{ csrf_token() }}');
+            formData.append('id', itemId);
+            formData.append('doc_type', docType);
+            formData.append('document', file);
+            
+            // Show loading state
+            $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
+            
+            // Upload file
+            $.ajax({
+                url: '/admin/personal-data/upload-document',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response.success) {
+                        // Update image preview
+                        $(`.document-image[data-doc="${docType}"]`).attr('src', '/storage/' + response.file_path);
+                        // Update requirement status
+                        $(`#req-${docType}`).prop('checked', true).trigger('change');
+                    } else {
+                        alert(response.message || 'Gagal mengunggah dokumen');
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat mengunggah dokumen');
+                },
+                complete: function() {
+                    $button.html('<i class="fas fa-upload me-1"></i> ' + $button.text().replace('Mengunggah...', '').trim());
+                    $button.prop('disabled', false);
+                }
+            });
+        });
+        
+        // Trigger file input click
+        $fileInput.trigger('click');
+    });
+    
+    // View image in full screen
+    window.viewImage = function(element) {
+        const src = $(element).attr('src');
+        if (src.includes('placeholder.jpg')) return;
+        
+        const modal = `
+            <div class="modal fade" id="imageViewerModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center p-0">
+                            <img src="${src}" class="img-fluid" style="max-height: 80vh;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(modal);
+        const modalEl = new bootstrap.Modal(document.getElementById('imageViewerModal'));
+        modalEl.show();
+        
+        // Remove modal after close
+        $('#imageViewerModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+    };
+
+    // Handle document upload button click
+    $(document).on('click', '.upload-document', function() {
+        const docType = $(this).data('doc-type');
+        const itemId = $(this).data('item-id');
+        
+        // Set values in the modal
+        $('#documentItemId').val(itemId);
+        $('#documentType').val(docType);
+        $('#documentFile').val('');
+        $('#documentNotes').val('');
+        $('#uploadPreview').addClass('d-none');
+        
+        // Show the modal
+        const modal = new bootstrap.Modal(document.getElementById('documentUploadModal'));
+        modal.show();
+    });
+    
+    // Preview selected file
+    $('#documentFile').on('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#documentPreview').attr('src', e.target.result);
+                $('#uploadPreview').removeClass('d-none');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            $('#uploadPreview').addClass('d-none');
+        }
+    });
+    
+    // Submit document upload
+    $('#submitDocumentUpload').on('click', function() {
+        const $button = $(this);
+        const formData = new FormData($('#documentUploadForm')[0]);
+        
+        // Show loading state
+        $button.prop('disabled', true);
+        $button.find('.spinner-border').removeClass('d-none');
+        
+        $.ajax({
+            url: '{{ route("personal-data.upload-document") }}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // Close the modal and refresh the detail view
+                    $('#documentUploadModal').modal('hide');
+                    // Find and click the detail button again to refresh the view
+                    $(`button[data-id="${response.data.id}"].view-details`).click();
+                    
+                    // Show success message
+                    showToast('success', 'Dokumen berhasil diupload');
+                } else {
+                    alert(response.message || 'Terjadi kesalahan saat mengupload dokumen');
+                }
+            },
+            error: function(xhr) {
+                const error = xhr.responseJSON?.message || 'Terjadi kesalahan. Silakan coba lagi.';
+                alert(error);
+            },
+            complete: function() {
+                $button.prop('disabled', false);
+                $button.find('.spinner-border').addClass('d-none');
+            }
+        });
+    });
+    
+    // Function to view document in full screen
+    window.viewDocument = function(filePath) {
+        const modal = `
+            <div class="modal fade" id="documentViewerModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="/storage/${filePath}" class="img-fluid" style="max-height: 80vh;">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        
+        $('body').append(modal);
+        const modalEl = new bootstrap.Modal(document.getElementById('documentViewerModal'));
+        modalEl.show();
+        
+        // Remove modal after close
+        $('#documentViewerModal').on('hidden.bs.modal', function() {
+            $(this).remove();
+        });
+    };
+    
+    // Show toast notification
+    function showToast(type, message) {
+        const toast = `
+            <div class="toast align-items-center text-white bg-${type} border-0 position-fixed top-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>`;
+        
+        $('body').append(toast);
+        const toastEl = new bootstrap.Toast($('.toast').last()[0]);
+        toastEl.show();
+        
+        // Remove toast after hide
+        $('.toast').last().on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
+    }
 </script>
 @endpush
