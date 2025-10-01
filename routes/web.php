@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\FieldVerificationController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,6 +22,11 @@ Route::post('/field-verification/update', [FieldVerificationController::class, '
 // Public Routes
 Route::get('/pengajuan-izin', [PersonalDataController::class, 'create'])
     ->name('pengajuan.izin');
+
+// Address Dropdown Routes
+Route::get('/api/kabupaten', [AddressController::class, 'getKabupatenKota']);
+Route::get('/api/kecamatan/{kabupatenId}', [AddressController::class, 'getKecamatan']);
+Route::get('/api/kelurahan/{kecamatanId}', [AddressController::class, 'getKelurahan']);
     
 Route::post('/pengajuan-izin', [PersonalDataController::class, 'store'])
     ->name('pengajuan.izin.store');
@@ -45,6 +51,18 @@ Route::middleware(['auth'])->group(function () {
         ->name('admin.penyesuaian-data');
         
     // Endpoint untuk verifikasi data
-    Route::post('/admin/personal-data/verify', [PersonalDataController::class, 'updateVerification'])
+    Route::post('/admin/personal-data/verify/{id}', [PersonalDataController::class, 'updateVerification'])
         ->name('personal-data.verify');
+        
+    // Endpoint untuk verifikasi persyaratan
+    Route::post('/admin/personal-data/verify-requirement', [PersonalDataController::class, 'verifyRequirement'])
+        ->name('personal-data.verify-requirement');
+        
+    // Endpoint untuk upload dokumen
+    Route::post('/admin/personal-data/upload-document', [PersonalDataController::class, 'uploadDocument'])
+        ->name('personal-data.upload-document');
+        
+    // Endpoint untuk toggle verifikasi persyaratan
+    Route::post('/admin/personal-data/toggle-requirement', [PersonalDataController::class, 'toggleRequirementVerification'])
+        ->name('personal-data.toggle-requirement');
 });

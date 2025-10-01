@@ -55,19 +55,36 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kabupaten/Kota <span class="text-danger">*</span></label>
-                            <input type="text" name="kabupaten_kota" class="form-control" value="{{ old('kabupaten_kota') }}" required maxlength="100">
+                            <select name="kabupaten_kota" id="kabupaten" class="form-select" required>
+                                <option value="">Pilih Kabupaten/Kota</option>
+                                @foreach([['id' => '3519', 'name' => 'KABUPATEN MAGETAN']] as $kabupaten)
+                                    <option value="{{ $kabupaten['id'] }}" {{ old('kabupaten_kota') == $kabupaten['id'] ? 'selected' : '' }}>
+                                        {{ $kabupaten['name'] }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
-                            <input type="text" name="kecamatan" class="form-control" value="{{ old('kecamatan') }}" required maxlength="100">
+                            <select name="kecamatan" id="kecamatan" class="form-select" required>
+                                <option value="">Pilih Kecamatan</option>
+                                @if(old('kecamatan'))
+                                    <option value="{{ old('kecamatan') }}" selected>{{ old('kecamatan') }}</option>
+                                @endif
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kelurahan/Desa <span class="text-danger">*</span></label>
-                            <input type="text" name="kelurahan" class="form-control" value="{{ old('kelurahan') }}" required>
+                            <select name="kelurahan" id="kelurahan" class="form-select" required>
+                                <option value="">Pilih Kelurahan/Desa</option>
+                                @if(old('kelurahan'))
+                                    <option value="{{ old('kelurahan') }}" selected>{{ old('kelurahan') }}</option>
+                                @endif
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kode Pos</label>
-                            <input type="text" name="kode_pos" class="form-control" value="{{ old('kode_pos') }}" maxlength="5" pattern="\d{5}" title="Masukkan 5 digit kode pos">
+                            <input type="text" name="kode_pos" id="kode_pos" class="form-control" value="{{ old('kode_pos') }}" readonly>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -171,6 +188,115 @@
 <script>
     $(document).ready(function() {
         // Show/hide requirements when jenis izin changes
+        // Function to load Kecamatan based on selected Kabupaten
+        function loadKecamatan(kabupatenId) {
+            if (kabupatenId) {
+                $.get(`/api/kecamatan/${kabupatenId}`, function(data) {
+                    const kecamatanSelect = $('#kecamatan');
+                    kecamatanSelect.empty().append('<option value="">Pilih Kecamatan</option>');
+                    
+                    data.forEach(function(kecamatan) {
+                        kecamatanSelect.append(new Option(kecamatan.name, kecamatan.id));
+                    });
+                    
+                    // Reset dependent fields
+                    $('#kelurahan').empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+                    $('#kode_pos').val('');
+                });
+            }
+        }
+        
+        
+        // Initialize kabupaten on page load
+        const selectedKabupaten = $('#kabupaten').val();
+        if (selectedKabupaten) {
+            loadKecamatan(selectedKabupaten);
+        }
+        
+        // Kabupaten change event
+        $('#kabupaten').on('change', function() {
+            const kabupatenId = $(this).val();
+            loadKecamatan(kabupatenId);
+        });
+        
+        // Kecamatan change event
+        $('#kecamatan').on('change', function() {
+            const kecamatanId = $(this).val();
+            console.log('Kecamatan selected:', kecamatanId);
+            if (kecamatanId) {
+                loadKelurahan(kecamatanId);
+            } else {
+                $('#kelurahan').empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+                $('#kode_pos').val('');
+            }
+        });
+        
+        // Function to load Kelurahan based on selected Kecamatan
+        function loadKelurahan(kecamatanId) {
+            if (kecamatanId) {
+                console.log('Loading kelurahan for kecamatan:', kecamatanId);
+                $('#kelurahan').html('<option value="">Memuat data kelurahan...</option>');
+                
+                // Add cache buster to prevent caching issues
+                const timestamp = new Date().getTime();
+                
+                $.ajax({
+                    url: `/api/kelurahan/${kecamatanId}?t=${timestamp}`,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log('Kelurahan data received:', data);
+                        const kelurahanSelect = $('#kelurahan');
+                        kelurahanSelect.empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+                        
+                        if (data && data.length > 0) {
+                            data.forEach(function(kelurahan) {
+                                console.log('Adding kelurahan:', kelurahan.name);
+                                kelurahanSelect.append(new Option(kelurahan.name, kelurahan.name));
+                            });
+                        } else {
+                            console.warn('No kelurahan data found for kecamatan:', kecamatanId);
+                            kelurahanSelect.append('<option value="" disabled>Tidak ada data kelurahan</option>');
+                        }
+                    
+                        // Reset kode pos
+                        $('#kode_pos').val('');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading kelurahan:', status, error);
+                        console.error('Response:', xhr.responseText);
+                        $('#kelurahan').html('<option value="" disabled>Gagal memuat data</option>');
+                    },
+                    complete: function() {
+                        console.log('Kelurahan dropdown updated');
+                    }
+                });
+            } else {
+                $('#kelurahan').empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+                $('#kode_pos').val('');
+            }
+        }
+        
+        // Kelurahan change event
+        $('#kelurahan').on('change', function() {
+            const kelurahanName = $(this).val();
+            if (kelurahanName) {
+                const kecamatanId = $('#kecamatan').val();
+                if (kecamatanId) {
+                    // Find the selected kelurahan and update kode pos
+                    $.get(`/api/kelurahan/${kecamatanId}`, function(data) {
+                        const selectedKelurahan = data.find(k => k.name === kelurahanName);
+                        if (selectedKelurahan) {
+                            $('#kode_pos').val(selectedKelurahan.kode_pos);
+                        }
+                    });
+                }
+            } else {
+                $('#kode_pos').val('');
+            }
+        });
+        
+        // Handle jenis izin change
         $('select[name="jenis_izin"]').on('change', function() {
             const selectedId = $(this).val();
             
