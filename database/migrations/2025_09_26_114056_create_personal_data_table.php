@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('no_kk', 16)->nullable();
             $table->string('foto_ktp')->nullable();
             $table->string('foto_kk')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

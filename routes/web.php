@@ -3,13 +3,17 @@
 use App\Http\Controllers\PersonalDataController;
 use App\Http\Controllers\FieldVerificationController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\PenerimaanSkController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 // Test Route
+// Include check-data routes
+require __DIR__.'/check-data.php';
+
 Route::get('/test-login', function () {
     if (Auth::attempt(['email' => 'admin@example.com', 'password' => 'password'])) {
-        return redirect()->intended('/admin/penyesuaian-data');
+        return redirect()->route('admin.dashboard');
     }
     return 'Login failed';
 });
@@ -27,7 +31,7 @@ Route::get('/pengajuan-izin', [PersonalDataController::class, 'create'])
 Route::get('/api/kabupaten', [AddressController::class, 'getKabupatenKota']);
 Route::get('/api/kecamatan/{kabupatenId}', [AddressController::class, 'getKecamatan']);
 Route::get('/api/kelurahan/{kecamatanId}', [AddressController::class, 'getKelurahan']);
-    
+
 Route::post('/pengajuan-izin', [PersonalDataController::class, 'store'])
     ->name('pengajuan.izin.store');
 
@@ -42,27 +46,41 @@ Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionControlle
     ->name('logout');
 
 // Admin Routes (Protected by auth middleware)
-Route::middleware(['auth'])->group(function () {
-    // Verification update route
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+    // Existing admin routes
     Route::post('/verification/update', [PersonalDataController::class, 'updateVerification'])
         ->name('verification.update');
-    // Halaman penyesuaian data
-    Route::get('/admin/penyesuaian-data', [PersonalDataController::class, 'penyesuaianData'])
-        ->name('admin.penyesuaian-data');
-        
-    // Endpoint untuk verifikasi data
-    Route::post('/admin/personal-data/verify/{id}', [PersonalDataController::class, 'updateVerification'])
+
+    Route::get('/penyesuaian-data', [PersonalDataController::class, 'penyesuaianData'])
+        ->name('penyesuaian-data');
+
+    Route::post('/personal-data/verify/{id}', [PersonalDataController::class, 'updateVerification'])
         ->name('personal-data.verify');
-        
-    // Endpoint untuk verifikasi persyaratan
-    Route::post('/admin/personal-data/verify-requirement', [PersonalDataController::class, 'verifyRequirement'])
+
+    Route::post('/personal-data/verify-requirement', [PersonalDataController::class, 'verifyRequirement'])
         ->name('personal-data.verify-requirement');
-        
-    // Endpoint untuk upload dokumen
-    Route::post('/admin/personal-data/upload-document', [PersonalDataController::class, 'uploadDocument'])
+
+    Route::post('/personal-data/upload-document', [PersonalDataController::class, 'uploadDocument'])
         ->name('personal-data.upload-document');
-        
-    // Endpoint untuk toggle verifikasi persyaratan
-    Route::post('/admin/personal-data/toggle-requirement', [PersonalDataController::class, 'toggleRequirementVerification'])
+
+    Route::post('/personal-data/toggle-requirement', [PersonalDataController::class, 'toggleRequirementVerification'])
         ->name('personal-data.toggle-requirement');
+
+    // Serah Terima Routes
+    Route::resource('serah-terima', 'App\Http\Controllers\Admin\SerahTerimaController')
+        ->names('serah-terima')
+        ->except(['edit', 'update']);
+        
+    Route::put('serah-terima/update-field/{id}', 'App\Http\Controllers\Admin\SerahTerimaController@updateField')
+        ->name('serah-terima.update-field');
+        
+    Route::post('serah-terima/upload-document', 'App\Http\Controllers\Admin\SerahTerimaController@uploadDocument')
+        ->name('serah-terima.upload-document');
+
+    // Penerimaan SK Routes
+    Route::resource('penerimaan-sk', 'App\Http\Controllers\Admin\PenerimaanSkController')
+        ->names('penerimaan-sk');
+        
+    Route::put('penerimaan-sk/update-field/{id}', 'App\Http\Controllers\Admin\PenerimaanSkController@updateField')
+        ->name('penerimaan-sk.update-field');
 });

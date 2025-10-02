@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IzinPengajuan;
+use Illuminate\Support\Facades\Log;
 use App\Models\PersonalData;
 use App\Models\JenisIzin;
 use App\Models\FieldVerification;
@@ -41,6 +42,8 @@ class PersonalDataController extends Controller
                 'jenis_izin' => 'required|exists:jenis_izins,id',
                 'foto_ktp' => 'required|file|mimes:jpg,jpeg,png|max:2048',
                 'foto_kk' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+                'pendukung' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+                
             ], [
                 'kode_pos.max' => 'Kode pos maksimal 5 karakter',
                 'no_ktp.size' => 'Nomor KTP harus 16 digit',
@@ -51,6 +54,7 @@ class PersonalDataController extends Controller
                 'foto_kk.mimes' => 'Format file harus JPG, JPEG, atau PNG',
                 'foto_ktp.max' => 'Ukuran file maksimal 2MB',
                 'foto_kk.max' => 'Ukuran file maksimal 2MB',
+                'pendukung.max' => 'Ukuran file maksimal 2MB',
             ]);
 
             // Check if user is authenticated
@@ -92,11 +96,29 @@ class PersonalDataController extends Controller
             // Commit the transaction
             DB::commit();
             
-            return redirect()->back()->with('success', 'Data berhasil disimpan');
+            // Get the jenis izin name for the success message
+            $jenisIzin = JenisIzin::find($request->jenis_izin);
+            
+            // Check if user is admin
+            if (auth()->check() && auth()->user()->role === 'admin') {
+                // For admin, redirect to penyesuaian data with success message
+                return redirect()->route('admin.penyesuaian-data')
+                    ->with([
+                        'success' => 'Data berhasil disimpan!',
+                        'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' untuk ' . $request->nama . ' berhasil disimpan. Nomor pengajuan: #' . $personalData->id
+                    ]);
+            } else {
+                // For regular users, redirect back with success message
+                return redirect()->back()
+                    ->with([
+                        'success' => 'Terima kasih, ' . $request->nama . '!',
+                        'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' Anda berhasil dikirim. Kami akan segera memproses permohonan Anda. Nomor pengajuan Anda adalah #' . $personalData->id . '.'
+                    ]);
+            }
             
         } catch (\Exception $e) {
             // Rollback the transaction on error
-            DB::rollBack();
+            // DB::rollBack();
             
             return redirect()->back()
                 ->withInput()
@@ -109,12 +131,39 @@ class PersonalDataController extends Controller
      */
     public function penyesuaianData()
     {
-        // Get all personal data with their related izin pengajuan and field verifications
-        $data = PersonalData::with(['izinPengajuan.jenisIzin', 'fieldVerifications'])
+        try {
+            // Get all personal data with their related data
+            $data = PersonalData::with([
+                'izinPengajuan' => function($query) {
+                    $query->withTrashed()
+                          ->with(['jenisIzin' => function($q) {
+                              $q->withTrashed();
+                          }]);
+                },
+                'fieldVerifications',
+                'penerimaanSk',
+                'serahTerima'
+            ])
             ->orderBy('created_at', 'desc')
             ->get();
             
-        return view('penyesuaian_data', compact('data'));
+            // Debug: Log the first item's data
+            if ($data->isNotEmpty()) {
+                Log::info('First personal data item:', [
+                    'id' => $data->first()->id,
+                    'izin_pengajuan_count' => $data->first()->izinPengajuan ? $data->first()->izinPengajuan->count() : 0,
+                    'has_penerimaan_sk' => $data->first()->penerimaanSk ? 'yes' : 'no',
+                    'has_serah_terima' => $data->first()->serahTerima ? 'yes' : 'no'
+                ]);
+            }
+            
+            return view('penyesuaian_data', compact('data'));
+            
+        } catch (\Exception $e) {
+            Log::error('Error in penyesuaianData: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
     /**

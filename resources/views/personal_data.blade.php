@@ -3,8 +3,12 @@
 @section('content')
 <div class="container">
     @if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <h4 class="alert-heading">{{ session('success') }}</h4>
+        @if(session('message'))
+            <p class="mb-0">{{ session('message') }}</p>
+        @endif
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     @endif
 

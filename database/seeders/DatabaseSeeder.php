@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Run seeders
         $this->call([
             JenisIzinSeeder::class,
+            PenerimaanSkSeeder::class,
             // ProvinceSeeder::class, // Uncomment if needed
         ]);
         
