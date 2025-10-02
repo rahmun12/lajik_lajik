@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Auth;
 // Include check-data routes
 require __DIR__.'/check-data.php';
 
+// Homepage Route
+Route::get('/', function () {
+    return view('welcome');
+});
+
 Route::get('/test-login', function () {
     if (Auth::attempt(['email' => 'admin@example.com', 'password' => 'password'])) {
         return redirect()->route('admin.dashboard');
