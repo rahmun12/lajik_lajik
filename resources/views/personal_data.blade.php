@@ -60,9 +60,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Kabupaten/Kota <span class="text-danger">*</span></label>
-                        <select name="kabupaten_kota" class="form-select" required>
+                        <select name="kabupaten_kota" id="kabupaten" class="form-select" required>
                             <option value="">Pilih Kabupaten/Kota</option>
-                            @foreach([['id' => '3519', 'name' => 'KABUPATEN MAGETAN']] as $kabupaten)
+                            @foreach([["id" => "3519", "name" => "KABUPATEN MAGETAN"]] as $kabupaten)
                                 <option value="{{ $kabupaten['id'] }}" {{ old('kabupaten_kota') == $kabupaten['id'] ? 'selected' : '' }}>
                                     {{ $kabupaten['name'] }}
                                 </option>
@@ -177,5 +177,87 @@
     .requirements-list { display: none; }
     .requirements-list.show { display: block; }
 </style>
+@endpush
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(function() {
+        function resetKelurahan() {
+            $('#kelurahan').empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+            $('#kode_pos').val('');
+        }
+
+        function loadKecamatan(kabupatenId) {
+            if (!kabupatenId) { $('#kecamatan').html('<option value="">Pilih Kecamatan</option>'); resetKelurahan(); return; }
+            $('#kecamatan').html('<option value="">Memuat data kecamatan...</option>');
+            $.get(`/api/kecamatan/${kabupatenId}`)
+                .done(function(data) {
+                    const $kec = $('#kecamatan');
+                    $kec.empty().append('<option value="">Pilih Kecamatan</option>');
+                    (data || []).forEach(function(item){
+                        $kec.append(new Option(item.name, item.id));
+                    });
+                    resetKelurahan();
+                })
+                .fail(function(){
+                    $('#kecamatan').html('<option value="">Gagal memuat kecamatan</option>');
+                    resetKelurahan();
+                });
+        }
+
+        function loadKelurahan(kecamatanId) {
+            if (!kecamatanId) { resetKelurahan(); return; }
+            $('#kelurahan').html('<option value="">Memuat data kelurahan...</option>');
+            const ts = Date.now();
+            $.get(`/api/kelurahan/${kecamatanId}?t=${ts}`)
+                .done(function(data) {
+                    const $kel = $('#kelurahan');
+                    $kel.empty().append('<option value="">Pilih Kelurahan/Desa</option>');
+                    (data || []).forEach(function(item){
+                        $kel.append(new Option(item.name, item.name));
+                    });
+                    $('#kode_pos').val('');
+                })
+                .fail(function(){
+                    $('#kelurahan').html('<option value="">Gagal memuat kelurahan</option>');
+                    $('#kode_pos').val('');
+                });
+        }
+
+        // Init on load if kabupaten already selected
+        const selectedKab = $('#kabupaten').val();
+        if (selectedKab) { loadKecamatan(selectedKab); }
+
+        $('#kabupaten').on('change', function(){
+            loadKecamatan($(this).val());
+        });
+
+        $('#kecamatan').on('change', function(){
+            loadKelurahan($(this).val());
+        });
+
+        $('#kelurahan').on('change', function(){
+            const kelName = $(this).val();
+            const kecId = $('#kecamatan').val();
+            if (!kelName || !kecId) { $('#kode_pos').val(''); return; }
+            $.get(`/api/kelurahan/${kecId}`)
+                .done(function(data){
+                    const found = (data || []).find(k => k.name === kelName);
+                    $('#kode_pos').val(found ? (found.kode_pos || '') : '');
+                })
+                .fail(function(){ $('#kode_pos').val(''); });
+        });
+
+        // Toggle persyaratan list when jenis izin changes
+        const $jenis = $('select[name="jenis_izin"]');
+        function toggleReq() {
+            const id = $jenis.val();
+            $('.requirements-list').removeClass('show');
+            if (id) { $(`#requirements-${id}`).addClass('show'); }
+        }
+        $jenis.on('change', toggleReq);
+        if ($jenis.val()) toggleReq();
+    });
+</script>
 @endpush
 @endsection
