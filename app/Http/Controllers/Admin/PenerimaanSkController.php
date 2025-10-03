@@ -18,18 +18,18 @@ class PenerimaanSkController extends Controller
     {
         try {
             $penerimaanSks = PenerimaanSk::with([
-                'personalData' => function($query) {
+                'personalData' => function ($query) {
                     $query->withTrashed();
                 },
-                'personalData.izinPengajuan' => function($query) {
+                'personalData.izinPengajuan' => function ($query) {
                     $query->withTrashed()
-                        ->with(['jenisIzin' => function($q) {
+                        ->with(['jenisIzin' => function ($q) {
                             $q->withTrashed();
                         }]);
                 }
             ])
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
             // Debug data
             // dd($penerimaanSks->toArray());
@@ -77,7 +77,7 @@ class PenerimaanSkController extends Controller
     {
         try {
             $personalData = PersonalData::where('is_verified', 1)
-                ->whereDoesntHave('penerimaanSk')
+                ->whereDoesntHave('penerimaanSks')
                 ->orderBy('nama', 'asc')
                 ->get();
 
@@ -135,13 +135,13 @@ class PenerimaanSkController extends Controller
     {
         try {
             $item = PersonalData::with([
-                'penerimaanSk' => function ($query) {
+                'penerimaanSks' => function ($query) {
                     $query->withTrashed();
                 },
                 'jenisIzin'
             ])->findOrFail($id);
 
-            if (!$item->penerimaanSk) {
+            if ($item->penerimaanSks->isEmpty()) {
                 return redirect()->route('admin.penerimaan-sk.create')
                     ->with('error', 'Data penerimaan SK belum ada. Silakan tambahkan data terlebih dahulu.');
             }
@@ -156,20 +156,16 @@ class PenerimaanSkController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
     {
         try {
-            $penerimaanSk = PenerimaanSk::withTrashed()->findOrFail($id);
-            $item = PersonalData::with('jenisIzin')
-                ->findOrFail($penerimaanSk->personal_data_id);
+            $penerimaanSk = PenerimaanSk::with('personalData')
+                ->findOrFail($id);
+            $item = $penerimaanSk->personalData;
 
-            return view('admin.penerimaan-sk.edit', [
-                'penerimaanSk' => $penerimaanSk,
-                'item' => $item
-            ]);
+            return view('admin.penerimaan-sk.edit', compact('penerimaanSk', 'item'));
         } catch (\Exception $e) {
             Log::error('Error in edit: ' . $e->getMessage());
             // return redirect()->back()->with('error', 'Gagal membuka form edit: ' . $e->getMessage());

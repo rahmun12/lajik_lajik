@@ -10,7 +10,7 @@ class PenerimaanSk extends Model
     use SoftDeletes;
 
     protected $table = 'penerimaan_sk';
-    
+
     protected $fillable = [
         'personal_data_id',
         'no_sk_izin',
@@ -29,7 +29,7 @@ class PenerimaanSk extends Model
     protected $casts = [
         'tanggal_terbit' => 'date',
     ];
-    
+
     /**
      * Get the personal data that owns the penerimaan SK.
      */
@@ -39,7 +39,15 @@ class PenerimaanSk extends Model
             ->withTrashed()
             ->withDefault([
                 'nama' => 'N/A',
-                'no_ktp' => 'N/A',
             ]);
     }
+    public function jenisIzin()
+    {
+        return $this->belongsTo(JenisIzin::class, 'jenis_izin_id')
+            ->withTrashed();
+    }
+    // public function serahTerima()
+    // {
+    //     return $this->belongsTo(SerahTerima::class, 'personal_data_id');
+    // }
 }

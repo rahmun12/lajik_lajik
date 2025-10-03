@@ -41,4 +41,10 @@ class JenisIzin extends Model
         return $this->hasMany(\App\Models\SerahTerima::class, 'jenis_izin_id')
             ->withTrashed();
     }
+
+    public function penerimaanSk()
+    {
+        return $this->hasMany(\App\Models\PenerimaanSk::class, 'jenis_izin_id')
+            ->withTrashed();
+    }
 }

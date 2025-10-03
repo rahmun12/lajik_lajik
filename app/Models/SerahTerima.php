@@ -90,4 +90,9 @@ class SerahTerima extends Model
     {
         return $this->belongsTo(JenisIzin::class);
     }
+
+    // public function penerimaanSk()
+    // {
+    //     return $this->belongsTo(PenerimaanSk::class, 'personal_data_id');
+    // }
 }

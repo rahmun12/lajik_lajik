@@ -27,7 +27,6 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Pemohon</th>
-                        <th>No. KTP</th>
                         <th>Jenis Izin</th>
                         <th>No. SK Izin</th>
                         <th>Tanggal Terbit</th>
@@ -41,7 +40,6 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $item->personalData->nama ?? 'N/A' }}</td>
-                        <td>{{ $item->personalData->no_ktp ?? 'N/A' }}</td>
                         <td>
                             @if(isset($item->personalData->izinPengajuan) && $item->personalData->izinPengajuan->isNotEmpty())
                                 {{ $item->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'N/A' }}
