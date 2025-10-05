@@ -17,6 +17,7 @@ class PenerimaanSkController extends Controller
     public function index()
     {
         try {
+            // Get existing penerimaan_sk records
             $penerimaanSks = PenerimaanSk::with([
                 'personalData' => function ($query) {
                     $query->withTrashed();
@@ -28,32 +29,66 @@ class PenerimaanSkController extends Controller
                         }]);
                 }
             ])
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($item) {
+                $data = $item->toArray();
+                $data['is_serah_terima'] = false;
+                $data['jenis_izin'] = $item->personalData && $item->personalData->izinPengajuan->isNotEmpty() 
+                    ? $item->personalData->izinPengajuan->first()->jenisIzin->toArray() 
+                    : null;
+                return $data;
+            });
 
-            // Debug data
-            // dd($penerimaanSks->toArray());
+            // Get serah_terima records that don't have a corresponding penerimaan_sk
+            $serahTerimaWithoutPenerimaan = \App\Models\SerahTerima::whereNotIn('personal_data_id', 
+                PenerimaanSk::select('personal_data_id')->get()->pluck('personal_data_id'))
+                ->with([
+                    'personalData' => function($query) {
+                        $query->withTrashed();
+                    },
+                    'personalData.izinPengajuan' => function($query) {
+                        $query->withTrashed()
+                            ->with(['jenisIzin' => function($q) {
+                                $q->withTrashed();
+                            }]);
+                    },
+                    'jenisIzin'
+                ])
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id' => 'st-' . $item->id, // Prefix to identify as serah_terima record
+                        'personal_data_id' => $item->personal_data_id,
+                        'no_sk_izin' => null,
+                        'tanggal_terbit' => null,
+                        'petugas_menyerahkan' => $item->petugas_menyerahkan,
+                        'petugas_menerima' => $item->petugas_menerima,
+                        'personal_data' => $item->personalData ? $item->personalData->toArray() : null,
+                        'is_serah_terima' => true,
+                        'created_at' => $item->created_at,
+                        'updated_at' => $item->updated_at,
+                        'jenis_izin' => $item->jenisIzin ? $item->jenisIzin->toArray() : null
+                    ];
+                });
+
+            // Combine both collections and paginate manually
+            $allItems = $penerimaanSks->concat($serahTerimaWithoutPenerimaan);
+            
+            // Paginate the combined collection
+            $page = request()->get('page', 1);
+            $perPage = 10;
+            $penerimaanSks = new \Illuminate\Pagination\LengthAwarePaginator(
+                $allItems->forPage($page, $perPage),
+                $allItems->count(),
+                $perPage,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()]
+            );
 
             $totalPersonalData = PersonalData::withTrashed()->count();
             $verifiedPersonalData = PersonalData::withTrashed()->where('is_verified', 1)->count();
-            $withPenerimaanSk = PenerimaanSk::count();
-
-            // Log first item for debugging
-            if ($penerimaanSks->count() > 0) {
-                $first = $penerimaanSks->first();
-                Log::info('Penerimaan SK First Item:', [
-                    'penerimaan_sk' => $first->toArray(),
-                    'personal_data' => $first->personalData ? $first->personalData->toArray() : null,
-                    'izin_pengajuan' => $first->personalData && $first->personalData->izinPengajuan ?
-                        $first->personalData->izinPengajuan->map(function ($item) {
-                            return [
-                                'id' => $item->id,
-                                'jenis_izin_id' => $item->jenis_izin_id,
-                                'jenis_izin' => $item->jenisIzin ? $item->jenisIzin->toArray() : null
-                            ];
-                        })->toArray() : []
-                ]);
-            }
+            $withPenerimaanSk = PenerimaanSk::count() + $serahTerimaWithoutPenerimaan->count();
 
             return view('admin.penerimaan-sk.index', [
                 'items' => $penerimaanSks,

@@ -28,89 +28,151 @@
                         <th>No</th>
                         <th>Nama Pemohon</th>
                         <th>Jenis Izin</th>
-                        <th>No. SK Izin</th>
-                        <th>Tanggal Terbit</th>
+                        <th>Tanggal</th>
+                        <th>no sk</th>
                         <th>Petugas Menyerahkan</th>
                         <th>Petugas Menerima</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($items as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $item->personalData->nama ?? 'N/A' }}</td>
                         <td>
-                            @if(isset($item->personalData->izinPengajuan) && $item->personalData->izinPengajuan->isNotEmpty())
-                                {{ $item->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'N/A' }}
-                            @else
-                                N/A
-                            @endif
+                            @php
+                            if (is_array($item)) {
+                            $nama = $item['personal_data']['nama'] ?? 'N/A';
+                            } else {
+                            $nama = $item->personalData ? $item->personalData->nama : 'N/A';
+                            }
+                            @endphp
+                            {{ $nama }}
                         </td>
-
-                        {{-- No SK Izin --}}
                         <td>
-                            <div class="view-mode">
-                                <span class="value">{{ $item->no_sk_izin ?? 'N/A' }}</span>
-                                <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
-                            </div>
-                            <div class="edit-mode d-none">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ $item->no_sk_izin }}" />
-                                    <button class="btn btn-success save-btn" data-field="no_sk_izin" data-id="{{ $item->personal_data_id }}"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-secondary cancel-btn"><i class="fas fa-times"></i></button>
-                                </div>
-                            </div>
+                            @php
+                            if (is_array($item)) {
+                            if (isset($item['jenis_izin']) && is_array($item['jenis_izin'])) {
+                            $jenisIzin = $item['jenis_izin']['nama_izin'] ?? 'N/A';
+                            } else {
+                            // For serah_terima records, get jenis_izin from the relationship
+                            $jenisIzin = isset($item['personal_data']['izin_pengajuan'][0]['jenis_izin']['nama_izin'])
+                            ? $item['personal_data']['izin_pengajuan'][0]['jenis_izin']['nama_izin']
+                            : 'N/A';
+                            }
+                            } else {
+                            $jenisIzin = $item->personalData && $item->personalData->izinPengajuan->isNotEmpty()
+                            ? ($item->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'N/A')
+                            : 'N/A';
+                            }
+                            @endphp
+                            {{ $jenisIzin }}
                         </td>
 
                         {{-- Tanggal Terbit --}}
                         <td>
+                            @php
+                            $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
+                            $tanggalTerbit = is_array($item) ? 
+                                ($item['tanggal_terbit'] ?? now()->toDateString()) : 
+                                ($item->tanggal_terbit ?? now()->toDateString());
+                            $formattedDate = \Carbon\Carbon::parse($tanggalTerbit)->format('d/m/Y');
+                            $personalDataId = is_array($item) ? 
+                                ($item['personal_data_id'] ?? $item['id'] ?? '') : 
+                                ($item->personal_data_id ?? '');
+                            @endphp
                             <div class="view-mode">
-                                <span class="value">
-                                    {{ $item->tanggal_terbit ? \Carbon\Carbon::parse($item->tanggal_terbit)->format('d/m/Y') : 'N/A' }}
-                                </span>
+                                <span class="value">{{ $formattedDate }}</span>
+                                @if(!$isSerahTerima)
+                                    <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
+                                @endif
+                            </div>
+                            @if(!$isSerahTerima)
+                            <div class="edit-mode d-none">
+                                <div class="input-group">
+                                    <input type="date" class="form-control" value="{{ $tanggalTerbit }}" />
+                                    <button class="btn btn-success save-btn" data-field="tanggal_terbit" data-id="{{ $personalDataId }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-secondary cancel-btn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @endif
+                            <input type="hidden" class="tanggal-terbit" value="{{ $tanggalTerbit }}" />
+                        </td>
+
+                        {{-- No SK Izin --}}
+                        <td>
+                            @php
+                            $noSkIzin = is_array($item) ? ($item['no_sk_izin'] ?? '') : ($item->no_sk_izin ?? '');
+                            $personalDataId = is_array($item) ? ($item['personal_data_id'] ?? $item['id'] ?? '') : $item->personal_data_id;
+                            @endphp
+                            <div class="view-mode">
+                                <span class="value">{{ $noSkIzin ?: 'N/A' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">
                                 <div class="input-group">
-                                    <input type="date" class="form-control" value="{{ $item->tanggal_terbit }}" />
-                                    <button class="btn btn-success save-btn" data-field="tanggal_terbit" data-id="{{ $item->personal_data_id }}"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-secondary cancel-btn"><i class="fas fa-times"></i></button>
+                                    <input type="text" class="form-control" value="{{ $noSkIzin }}" />
+                                    <button class="btn btn-success save-btn" data-field="no_sk_izin" data-id="{{ $personalDataId }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-secondary cancel-btn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </td>
 
                         {{-- Petugas Menyerahkan --}}
                         <td>
+                            @php
+                            $petugasMenyerahkan = is_array($item) ? ($item['petugas_menyerahkan'] ?? '') : ($item->petugas_menyerahkan ?? '');
+                            $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
+                            $personalDataId = is_array($item) ? ($item['personal_data_id'] ?? $item['id'] ?? '') : $item->personal_data_id;
+                            @endphp
                             <div class="view-mode">
-                                <span class="value">{{ $item->petugas_menyerahkan ?? 'N/A' }}</span>
+                                <span class="value">{{ $petugasMenyerahkan ?: 'N/A' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ $item->petugas_menyerahkan }}" />
-                                    <button class="btn btn-success save-btn" data-field="petugas_menyerahkan" data-id="{{ $item->personal_data_id }}"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-secondary cancel-btn"><i class="fas fa-times"></i></button>
+                                    <input type="text" class="form-control" value="{{ $petugasMenyerahkan }}" />
+                                    <button class="btn btn-success save-btn" data-field="petugas_menyerahkan" data-id="{{ $personalDataId }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-secondary cancel-btn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </td>
 
                         {{-- Petugas Menerima --}}
                         <td>
+                            @php
+                            $petugasMenerima = is_array($item) ? ($item['petugas_menerima'] ?? '') : ($item->petugas_menerima ?? '');
+                            @endphp
                             <div class="view-mode">
-                                <span class="value">{{ $item->petugas_menerima ?? 'N/A' }}</span>
+                                <span class="value">{{ $petugasMenerima ?: 'N/A' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ $item->petugas_menerima }}" />
-                                    <button class="btn btn-success save-btn" data-field="petugas_menerima" data-id="{{ $item->personal_data_id }}"><i class="fas fa-check"></i></button>
-                                    <button class="btn btn-secondary cancel-btn"><i class="fas fa-times"></i></button>
+                                    <input type="text" class="form-control" value="{{ $petugasMenerima }}" />
+                                    <button class="btn btn-success save-btn" data-field="petugas_menerima" data-id="{{ $personalDataId }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-secondary cancel-btn">
+                                        <i class="fas fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
                         </td>
 
-                        
+
                     </tr>
                     @empty
                     <tr>
@@ -130,12 +192,34 @@
 
 @push('styles')
 <style>
-    .edit-btn { cursor: pointer; }
-    .view-mode, .edit-mode { min-height: 38px; display: flex; align-items: center; }
-    .edit-mode .input-group { min-width: 200px; }
-    .edit-mode .form-control { max-width: 200px; }
-    .table th, .table td { vertical-align: middle; }
-    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+    .edit-btn {
+        cursor: pointer;
+    }
+
+    .view-mode,
+    .edit-mode {
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+    }
+
+    .edit-mode .input-group {
+        min-width: 200px;
+    }
+
+    .edit-mode .form-control {
+        max-width: 200px;
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
 </style>
 @endpush
 
