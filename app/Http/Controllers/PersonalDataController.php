@@ -73,6 +73,22 @@ class PersonalDataController extends Controller
                 Auth::login($user);
             }
 
+            // Handle file uploads
+            $ktpPath = 'ktp_photos/' . date('Y/m/d');
+            $kkPath = 'kk_photos/' . date('Y/m/d');
+            
+            // Upload KTP
+            $fotoKtpPath = null;
+            if ($request->hasFile('foto_ktp')) {
+                $fotoKtpPath = $request->file('foto_ktp')->store($ktpPath, 'public');
+            }
+            
+            // Upload KK
+            $fotoKkPath = null;
+            if ($request->hasFile('foto_kk')) {
+                $fotoKkPath = $request->file('foto_kk')->store($kkPath, 'public');
+            }
+            
             // Save personal data
             $data = $request->only([
                 'nama', 'alamat_jalan', 'rt', 'rw', 
@@ -81,6 +97,8 @@ class PersonalDataController extends Controller
             ]);
             
             $data['user_id'] = Auth::id();
+            $data['foto_ktp'] = $fotoKtpPath;
+            $data['foto_kk'] = $fotoKkPath;
             
             // Create personal data
             $personalData = PersonalData::create($data);
