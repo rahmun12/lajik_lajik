@@ -71,6 +71,13 @@
                             Penerimaan SK
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white {{ request()->is('admin/penyerahan-sk*') ? 'active bg-primary' : '' }}"
+                            href="{{ route('admin.penyerahan-sk.index') }}">
+                            <i class="fas fa-file-import me-2"></i>
+                            Penyerahan SK
+                        </a>
+                    </li>
                     <li class="nav-item mt-auto">
                         <a class="nav-link text-white" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

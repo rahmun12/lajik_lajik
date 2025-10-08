@@ -88,4 +88,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         
     Route::put('penerimaan-sk/update-field/{id}', 'App\Http\Controllers\Admin\PenerimaanSkController@updateField')
         ->name('penerimaan-sk.update-field');
+
+    // Penyerahan SK Routes
+    Route::resource('penyerahan-sk', 'App\Http\Controllers\Admin\PenyerahanSkController')
+        ->names('penyerahan-sk');
+        
+    Route::post('penyerahan-sk/upload-foto/{id}', 'App\Http\Controllers\Admin\PenyerahanSkController@uploadFoto')
+        ->name('penyerahan-sk.upload-foto');
 });

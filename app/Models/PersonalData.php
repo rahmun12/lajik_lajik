@@ -9,6 +9,7 @@ use App\Models\JenisIzin;
 use App\Models\FieldVerification;
 use App\Models\SerahTerima;
 use App\Models\PenerimaanSk;
+use App\Models\PenyerahanSk;
 
 class PersonalData extends Model
 {
@@ -114,13 +115,21 @@ class PersonalData extends Model
      * Get the penerimaanSk associated with the PersonalData
      */
     /**
-     * Get the penerimaan SK for the personal data.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function penerimaanSk()
     {
         return $this->hasOne(PenerimaanSk::class, 'personal_data_id', 'id')
+            ->withTrashed();
+    }
+    
+    /**
+     * Get the penyerahan SK associated with the personal data.
+     */
+    public function penyerahanSk()
+    {
+        return $this->hasOne(PenyerahanSk::class, 'personal_data_id', 'id')
             ->withTrashed();
     }
 }

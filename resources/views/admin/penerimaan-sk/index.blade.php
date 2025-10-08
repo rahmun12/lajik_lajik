@@ -28,11 +28,12 @@
                         <th>No</th>
                         <th>Nama Pemohon</th>
                         <th>Jenis Izin</th>
-                        <th>Tanggal</th>
-                        <th>no sk</th>
+                        <th>Tanggal Terbit</th>
+                        <th>No. SK Izin</th>
                         <th>Petugas Menyerahkan</th>
                         <th>Petugas Menerima</th>
-
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,18 +74,18 @@
                         <td>
                             @php
                             $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
-                            $tanggalTerbit = is_array($item) ? 
-                                ($item['tanggal_terbit'] ?? now()->toDateString()) : 
-                                ($item->tanggal_terbit ?? now()->toDateString());
+                            $tanggalTerbit = is_array($item) ?
+                            ($item['tanggal_terbit'] ?? now()->toDateString()) :
+                            ($item->tanggal_terbit ?? now()->toDateString());
                             $formattedDate = \Carbon\Carbon::parse($tanggalTerbit)->format('d/m/Y');
-                            $personalDataId = is_array($item) ? 
-                                ($item['personal_data_id'] ?? $item['id'] ?? '') : 
-                                ($item->personal_data_id ?? '');
+                            $personalDataId = is_array($item) ?
+                            ($item['personal_data_id'] ?? $item['id'] ?? '') :
+                            ($item->personal_data_id ?? '');
                             @endphp
                             <div class="view-mode">
                                 <span class="value">{{ $formattedDate }}</span>
                                 @if(!$isSerahTerima)
-                                    <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                                 @endif
                             </div>
                             @if(!$isSerahTerima)
@@ -171,12 +172,39 @@
                                 </div>
                             </div>
                         </td>
-
-
+                        <td>
+                            @php
+                            $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
+                            $status = $isSerahTerima ? 'Sudah Diproses' : 'Menunggu';
+                            $badgeClass = $isSerahTerima ? 'bg-success' : 'bg-warning';
+                            @endphp
+                            <span class="badge {{ $badgeClass }}">{{ $status }}</span>
+                        </td>
+                        <td>
+                            @if(!$isSerahTerima)
+                            @php
+                                $penerimaanId = is_array($item) ? $item['id'] : $item->id;
+                                $url = route('admin.penyerahan-sk.create', ['penerimaan_sk_id' => $penerimaanId]);
+                                if (app()->environment('local')) {
+                                    echo "<script>console.log('URL Proses:', {url: '$url', penerimaan_sk_id: '$penerimaanId'})</script>";
+                                }
+                            @endphp
+                            <a href="{{ $url }}"
+                                class="btn btn-sm btn-success btn-proses"
+                                title="Terima dan Lanjutkan ke Penyerahan SK"
+                                data-id="{{ $penerimaanId }}">
+                                <i class="fas fa-check"></i> Proses
+                            </a>
+                            @else
+                            <a href="#" class="btn btn-sm btn-secondary" disabled>
+                                <i class="fas fa-check"></i> Selesai
+                            </a>
+                            @endif
+                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center">Tidak ada data penerimaan SK</td>
+                        <td colspan="10" class="text-center">Tidak ada data penerimaan SK</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -188,6 +216,42 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+$(document).ready(function() {
+    // Debug tombol proses
+    $('.btn-proses').on('click', function(e) {
+        e.preventDefault();
+        var url = $(this).attr('href');
+        var penerimaanId = $(this).data('id');
+        
+        console.log('Tombol Proses diklik');
+        console.log('URL:', url);
+        console.log('penerimaan_sk_id:', penerimaanId);
+        
+        // Coba akses URL dengan AJAX untuk debugging
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                console.log('Response dari server:', response);
+                // Jika berhasil, arahkan ke halaman
+                window.location.href = url;
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText
+                });
+                alert('Terjadi kesalahan: ' + xhr.status + ' ' + xhr.statusText);
+            }
+        });
+    });
+});
+</script>
+@endpush
+
 @endsection
 
 @push('styles')

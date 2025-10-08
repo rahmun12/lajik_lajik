@@ -29,34 +29,36 @@ class PenerimaanSkController extends Controller
                         }]);
                 }
             ])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($item) {
-                $data = $item->toArray();
-                $data['is_serah_terima'] = false;
-                $data['jenis_izin'] = $item->personalData && $item->personalData->izinPengajuan->isNotEmpty() 
-                    ? $item->personalData->izinPengajuan->first()->jenisIzin->toArray() 
-                    : null;
-                return $data;
-            });
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    $data = $item->toArray();
+                    $data['is_serah_terima'] = false;
+                    $data['jenis_izin'] = $item->personalData && $item->personalData->izinPengajuan->isNotEmpty()
+                        ? $item->personalData->izinPengajuan->first()->jenisIzin->toArray()
+                        : null;
+                    return $data;
+                });
 
             // Get serah_terima records that don't have a corresponding penerimaan_sk
-            $serahTerimaWithoutPenerimaan = \App\Models\SerahTerima::whereNotIn('personal_data_id', 
-                PenerimaanSk::select('personal_data_id')->get()->pluck('personal_data_id'))
+            $serahTerimaWithoutPenerimaan = \App\Models\SerahTerima::whereNotIn(
+                'personal_data_id',
+                PenerimaanSk::select('personal_data_id')->get()->pluck('personal_data_id')
+            )
                 ->with([
-                    'personalData' => function($query) {
+                    'personalData' => function ($query) {
                         $query->withTrashed();
                     },
-                    'personalData.izinPengajuan' => function($query) {
+                    'personalData.izinPengajuan' => function ($query) {
                         $query->withTrashed()
-                            ->with(['jenisIzin' => function($q) {
+                            ->with(['jenisIzin' => function ($q) {
                                 $q->withTrashed();
                             }]);
                     },
                     'jenisIzin'
                 ])
                 ->get()
-                ->map(function($item) {
+                ->map(function ($item) {
                     return [
                         'id' => 'st-' . $item->id, // Prefix to identify as serah_terima record
                         'personal_data_id' => $item->personal_data_id,
@@ -74,7 +76,7 @@ class PenerimaanSkController extends Controller
 
             // Combine both collections and paginate manually
             $allItems = $penerimaanSks->concat($serahTerimaWithoutPenerimaan);
-            
+
             // Paginate the combined collection
             $page = request()->get('page', 1);
             $perPage = 10;
