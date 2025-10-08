@@ -37,9 +37,9 @@ class PenyerahanSkController extends Controller
             error_log('PenyerahanSkController@create - Request Data: ' . json_encode($request->all()));
             error_log('Full URL: ' . $request->fullUrl());
         }
-        
+
         $penerimaanSkId = $request->query('penerimaan_sk_id');
-        
+
         if (!$penerimaanSkId) {
             if (app()->environment('local')) {
                 error_log('penerimaan_sk_id tidak ditemukan di URL');
@@ -50,7 +50,7 @@ class PenyerahanSkController extends Controller
 
         $penerimaanSk = PenerimaanSk::with(['personalData.izinPengajuan.jenisIzin'])
             ->find($penerimaanSkId);
-            
+
         if (!$penerimaanSk) {
             if (app()->environment('local')) {
                 error_log('Data PenerimaanSk tidak ditemukan untuk ID: ' . $penerimaanSkId);
@@ -116,17 +116,16 @@ class PenyerahanSkController extends Controller
 
             return redirect()->route('admin.penyerahan-sk.index')
                 ->with('success', 'Data penyerahan SK berhasil disimpan');
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             if (app()->environment('local')) {
                 error_log('Error saving data: ' . $e->getMessage());
                 error_log($e->getTraceAsString());
             }
-            
+
             return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' . 
+                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' .
                     (app()->environment('local') ? $e->getMessage() : 'Silakan coba lagi'))
                 ->withInput();
         }

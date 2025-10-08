@@ -174,14 +174,62 @@
                         </td>
                         <td>
                             @php
-                            $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
-                            $status = $isSerahTerima ? 'Sudah Diproses' : 'Menunggu';
-                            $badgeClass = $isSerahTerima ? 'bg-success' : 'bg-warning';
+                            // Debug: Tampilkan data item untuk pengecekan
+                            if (app()->environment('local')) {
+                                echo "<script>console.log('Item Data:', " . json_encode($item) . ")</script>";
+                            }
+                            
+                            // Default status adalah Menunggu
+                            $status = 'Menunggu';
+                            $badgeClass = 'bg-warning';
+                            $hasPenyerahanSk = false;
+                            
+                            // Cek apakah ini data dari tabel penerimaan_sk atau serah_terima
+                            $isFromPenerimaan = !isset($item['id']) || !is_string($item['id']) || !str_starts_with($item['id'], 'st-');
+                            
+                            if ($isFromPenerimaan) {
+                                // Jika dari penerimaan_sk, cek apakah sudah ada penyerahan_sk
+                                if (is_array($item)) {
+                                    // Cek langsung dari is_serah_terima jika ada
+                                    if (isset($item['is_serah_terima'])) {
+                                        $hasPenyerahanSk = (bool)$item['is_serah_terima'];
+                                    } 
+                                    // Jika tidak ada, cek dari penyerahan_sk
+                                    elseif (isset($item['penyerahan_sk']) && is_array($item['penyerahan_sk'])) {
+                                        $hasPenyerahanSk = !empty($item['penyerahan_sk']);
+                                    }
+                                    
+                                    // Debug log
+                                    if (app()->environment('local')) {
+                                        $logData = [
+                                            'is_serah_terima' => $item['is_serah_terima'] ?? null,
+                                            'has_penyerahan_sk' => $hasPenyerahanSk,
+                                            'penyerahan_sk_exists' => isset($item['penyerahan_sk'])
+                                        ];
+                                        $logDataJson = json_encode($logData);
+                                        echo "<script>
+                                            console.log('Pengecekan Status - ID: " . $item['id'] . "', " . $logDataJson . ");
+                                        </script>";
+                                    }
+                                } else {
+                                    $hasPenyerahanSk = $item->relationLoaded('penyerahanSk') && $item->penyerahanSk !== null;
+                                }
+                                
+                                if ($hasPenyerahanSk) {
+                                    $status = 'Sudah Diproses';
+                                    $badgeClass = 'bg-success';
+                                }
+                            } else {
+                                // Jika dari serah_terima, selalu tampilkan Sudah Diproses
+                                $status = 'Sudah Diproses';
+                                $badgeClass = 'bg-success';
+                                $hasPenyerahanSk = true;
+                            }
                             @endphp
-                            <span class="badge {{ $badgeClass }}">{{ $status }}</span>
+                            <span class="badge {{ $badgeClass }}" title="{{ $status }}">{{ $status }}</span>
                         </td>
                         <td>
-                            @if(!$isSerahTerima)
+                            @if(!$hasPenyerahanSk)
                             @php
                                 $penerimaanId = is_array($item) ? $item['id'] : $item->id;
                                 $url = route('admin.penyerahan-sk.create', ['penerimaan_sk_id' => $penerimaanId]);

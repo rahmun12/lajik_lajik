@@ -34,12 +34,21 @@ class SerahTerimaController extends Controller
             $file = $request->file('document');
             $fileName = 'doc_' . time() . '_' . $personalData->id . '.' . $file->getClientOriginalExtension();
 
+            // Pastikan direktori documents ada
+            $destinationPath = storage_path('app/public/documents');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
             // Simpan file ke storage
-            $path = $file->storeAs('public/documents', $fileName);
+            $file->move($destinationPath, $fileName);
 
             // Hapus file lama jika ada
             if ($personalData->serahTerima && $personalData->serahTerima->foto_berkas) {
-                Storage::delete('public/' . $personalData->serahTerima->foto_berkas);
+                $oldFilePath = storage_path('app/public/' . $personalData->serahTerima->foto_berkas);
+                if (file_exists($oldFilePath)) {
+                    unlink($oldFilePath);
+                }
             }
 
             // Update atau buat record serah terima

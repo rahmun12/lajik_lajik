@@ -27,13 +27,36 @@ class PenerimaanSkController extends Controller
                         ->with(['jenisIzin' => function ($q) {
                             $q->withTrashed();
                         }]);
-                }
+                },
+                'penyerahanSk' // Menambahkan relasi ke penyerahan_sk
             ])
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($item) {
                     $data = $item->toArray();
-                    $data['is_serah_terima'] = false;
+                    
+                    // Cek apakah ada relasi penyerahanSk
+                    $hasPenyerahanSk = $item->relationLoaded('penyerahanSk') && $item->penyerahanSk !== null;
+                    
+                    // Jika tidak ada relasi, cek langsung di database
+                    if (!$hasPenyerahanSk) {
+                        $hasPenyerahanSk = \App\Models\PenyerahanSk::where('penerimaan_sk_id', $item->id)->exists();
+                    }
+                    
+                    // Tambahkan status ke dalam data
+                    $data['is_serah_terima'] = $hasPenyerahanSk;
+                    $data['penyerahan_sk'] = $hasPenyerahanSk ? 
+                        ($item->relationLoaded('penyerahanSk') ? $item->penyerahanSk->toArray() : 
+                        \App\Models\PenyerahanSk::where('penerimaan_sk_id', $item->id)->first()->toArray()) : null;
+                    
+                    // Debug log
+                    \Log::info('Penerimaan SK Debug', [
+                        'penerimaan_sk_id' => $item->id,
+                        'has_penyerahan_sk' => $hasPenyerahanSk ? 'Ya' : 'Tidak',
+                        'status' => $hasPenyerahanSk ? 'Sudah Diproses' : 'Menunggu',
+                        'penyerahan_sk_data' => $data['penyerahan_sk']
+                    ]);
+
                     $data['jenis_izin'] = $item->personalData && $item->personalData->izinPengajuan->isNotEmpty()
                         ? $item->personalData->izinPengajuan->first()->jenisIzin->toArray()
                         : null;

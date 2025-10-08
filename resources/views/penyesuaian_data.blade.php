@@ -138,8 +138,8 @@
     </div>
 
     <!-- Detail Modal -->
-    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" data-bs-backdrop="static">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="detailModalLabel">Detail Data Pengajuan</h5>
@@ -364,20 +364,41 @@
                 initComplete: function() {
                     // Update row verification status on page load
                     this.api().rows().every(function() {
-                        updateRowVerificationStatus(this.node());
+                        updateRowVerificationStatus($(this.node()));
                     });
                 },
-                responsive: true,
                 order: [
                     [0, 'desc']
                 ],
                 language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+                    "decimal": "",
+                    "emptyTable": "Tidak ada data yang tersedia",
+                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+                    "infoFiltered": "(disaring dari _MAX_ total data)",
+                    "infoPostFix": "",
+                    "thousands": ".",
+                    "lengthMenu": "Tampilkan _MENU_ data",
+                    "loadingRecords": "Memuat...",
+                    "processing": "Memproses...",
+                    "search": "Cari:",
+                    "zeroRecords": "Tidak ditemukan data yang sesuai",
+                    "paginate": {
+                        "first": "Pertama",
+                        "last": "Terakhir",
+                        "next": "Selanjutnya",
+                        "previous": "Sebelumnya"
+                    },
+                    "aria": {
+                        "sortAscending": ": aktifkan untuk mengurutkan kolom naik",
+                        "sortDescending": ": aktifkan untuk mengurutkan kolom menurun"
+                    }
                 }
             });
 
             // Handle verification buttons - using event delegation for dynamic content
             $(document).on('click', '.verify-btn', function() {
+                // Verification button click handler
                 const id = $(this).data('id');
                 const isVerified = $(this).data('verified');
                 const $button = $(this);
@@ -512,30 +533,32 @@
 
                 // Generate document upload section
                 const documentPreviews = `
+                <!-- Foto Berkas Section -->
                 <div class="mb-4">
-                    <h6 class="border-bottom pb-2">Unggah Dokumen Pendukung</h6>
+                    <h6 class="border-bottom pb-2">Foto Berkas Serah Terima</h6>
                     <div class="card">
                         <div class="card-body">
                             <div class="text-center mb-3">
-                                ${item.document_path ? 
-                                    `<img src="/storage/${item.document_path}" 
+                                ${item.serah_terima && item.serah_terima.foto_berkas ? 
+                                    `<img src="${item.serah_terima.foto_berkas.startsWith('http') ? '' : '/storage/'}${item.serah_terima.foto_berkas}" 
                                           class="img-fluid img-thumbnail document-preview mb-2" 
                                           style="max-height: 200px; cursor: pointer;" 
-                                          onclick="viewDocument('${item.document_path}')">` :
-                                    '<div class="text-muted py-4 border rounded">Belum ada dokumen diunggah</div>'
+                                          onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                          onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
+                                    '<div class="text-muted py-4 border rounded">Belum ada foto berkas diunggah</div>'
                                 }
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <h6 class="mb-1">Dokumen Pendukung</h6>
-                                    <p class="text-muted small mb-0">Unggah dokumen pendukung dalam format JPG, PNG, atau PDF (maks. 2MB)</p>
+                                    <h6 class="mb-1">Foto Berkas</h6>
+                                    <p class="text-muted small mb-0">Unggah foto berkas serah terima dalam format JPG, PNG (maks. 2MB)</p>
                                 </div>
                                 <div>
                                     <button type="button" class="btn btn-primary upload-doc" 
-                                            data-doc-type="document" 
+                                            data-doc-type="foto_berkas" 
                                             data-item-id="${item.id}">
                                         <i class="fas fa-upload me-1"></i>
-                                        ${item.document_path ? 'Ganti Dokumen' : 'Unggah Dokumen'}
+                                        ${item.serah_terima && item.serah_terima.foto_berkas ? 'Ganti Foto' : 'Unggah Foto'}
                                     </button>
                                 </div>
                             </div>
@@ -761,13 +784,14 @@
         // Handle document upload
         $(document).on('click', '.upload-doc', function(e) {
             e.preventDefault();
-            const docType = $(this).data('doc');
+            const docType = $(this).data('doc-type');
             const itemId = $(this).data('item-id');
             const $button = $(this);
-            const $row = $(this).closest('tr');
+            const $card = $(this).closest('.card');
 
             // Create file input
-            const $fileInput = $('<input type="file" accept="image/*,.pdf" style="display: none;">');
+            const acceptTypes = docType === 'foto_berkas' ? 'image/*' : 'image/*,.pdf';
+            const $fileInput = $(`<input type="file" accept="${acceptTypes}" style="display: none;">`);
 
             $fileInput.on('change', function() {
                 const file = this.files[0];
@@ -776,6 +800,12 @@
                 // Check file size (max 2MB)
                 if (file.size > 2 * 1024 * 1024) {
                     showToast('error', 'Ukuran file maksimal 2MB');
+                    return;
+                }
+
+                // Check file type for foto_berkas (only images allowed)
+                if (docType === 'foto_berkas' && !file.type.match('image.*')) {
+                    showToast('error', 'Hanya file gambar yang diizinkan untuk foto berkas');
                     return;
                 }
 
@@ -788,36 +818,35 @@
                 // Show loading state
                 $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
 
+                // Determine the upload URL based on document type
+                const uploadUrl = docType === 'foto_berkas' 
+                    ? '/admin/serah-terima/upload-document' 
+                    : '/admin/personal-data/upload-document';
+
                 // Upload file
                 $.ajax({
-                    url: '/admin/personal-data/upload-document',
+                    url: uploadUrl,
                     type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
                     success: function(response) {
                         if (response.success) {
-                            // Update the document preview in the same row
-                            const $preview = $row.find('.document-preview');
-                            if ($preview.length) {
-                                if (file.type.startsWith('image/')) {
-                                    $preview.html(`
-                                <img src="${URL.createObjectURL(file)}" 
-                                     class="img-thumbnail document-image" 
-                                     style="max-width: 100px; max-height: 100px; cursor: pointer;"
-                                     onclick="viewImage(this)"
-                                     data-doc="${docType}">
-                                <div class="mt-1">
-                                    <small class="text-muted">${file.name}</small>
-                                </div>
-                            `);
-                                } else {
-                                    $preview.html(`
-                                <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                <div class="mt-1">
-                                    <small class="text-muted">${file.name}</small>
-                                </div>
-                            `);
+                            // Update the document preview in the card
+                            const previewContainer = $card.find('.document-preview-container');
+                            if (previewContainer.length) {
+                                if (response.file_path) {
+                                    const imgSrc = response.file_path.startsWith('http') ? 
+                                        response.file_path : 
+                                        `/storage/${response.file_path}`;
+                                    
+                                    previewContainer.html(`
+                                        <img src="${imgSrc}" 
+                                             class="img-fluid img-thumbnail document-preview mb-2" 
+                                             style="max-height: 200px; cursor: pointer;" 
+                                             onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                             onclick="viewDocument('${response.file_path}')
+                                    `);
                                 }
                             }
 
@@ -894,25 +923,25 @@
             }
 
             const modal = `
-        <div class="modal fade" id="imageViewerModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Pratinjau Dokumen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center p-0">
-                        <img src="${src}" class="img-fluid" style="max-height: 80vh;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+       <div class="modal fade" id="imageViewerModal" tabindex="-1" aria-labelledby="imageViewerModalLabel" aria-modal="true">
+           <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+               <div class="modal-content">
+                   <div class="modal-header">
+                       <h5 class="modal-title" id="imageViewerModalLabel">Pratinjau Dokumen</h5>
+                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                   </div>
+                   <div class="modal-body text-center p-0">
+                       <img src="${src}" class="img-fluid" style="max-height: 80vh;" alt="Pratinjau dokumen">
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                   </div>
+               </div>
+           </div>
+       </div>`;
 
             // Remove any existing modals
             $('#imageViewerModal').remove();
-
-            // Add new modal
             $('body').append(modal);
             const modalEl = new bootstrap.Modal(document.getElementById('imageViewerModal'));
             modalEl.show();

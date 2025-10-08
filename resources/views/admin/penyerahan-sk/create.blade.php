@@ -10,15 +10,15 @@
     </div>
 
     @if(session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
     @endif
 
     @if(!isset($penerimaanSk))
-        <div class="alert alert-danger">
-            Data penerimaan SK tidak ditemukan.
-        </div>
+    <div class="alert alert-danger">
+        Data penerimaan SK tidak ditemukan.
+    </div>
     @else
     <div class="card shadow mb-4">
         <div class="card-header py-3">
@@ -29,90 +29,90 @@
                 @csrf
                 <input type="hidden" name="penerimaan_sk_id" value="{{ $penerimaanSk->id }}">
                 <input type="hidden" name="personal_data_id" value="{{ $penerimaanSk->personal_data_id }}">
-                
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="nama_pemohon" class="form-label">Nama Pemohon</label>
-                        <input type="text" 
-                               id="nama_pemohon"
-                               class="form-control" 
-                               value="{{ $penerimaanSk->personalData->nama }}" 
-                               readonly>
+                        <input type="text"
+                            id="nama_pemohon"
+                            class="form-control"
+                            value="{{ $penerimaanSk->personalData->nama }}"
+                            readonly>
                     </div>
                     <div class="col-md-6">
                         <label for="jenis_izin" class="form-label">Jenis Izin</label>
-                        <input type="text" 
-                               id="jenis_izin"
-                               class="form-control" 
-                               value="{{ $penerimaanSk->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'Tidak ada data' }}" 
-                               readonly>
+                        <input type="text"
+                            id="jenis_izin"
+                            class="form-control"
+                            value="{{ $penerimaanSk->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'Tidak ada data' }}"
+                            readonly>
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="no_sk_izin" class="form-label">No. SK Izin</label>
-                        <input type="text" 
-                               id="no_sk_izin"
-                               class="form-control" 
-                               name="no_sk_izin" 
-                               value="{{ $penerimaanSk->no_sk_izin ?? '' }}"
-                               required>
+                        <input type="text"
+                            id="no_sk_izin"
+                            class="form-control"
+                            name="no_sk_izin"
+                            value="{{ $penerimaanSk->no_sk_izin ?? '' }}"
+                            required>
                     </div>
                     <div class="col-md-6">
                         <label for="tanggal_terbit" class="form-label">Tanggal Terbit SK</label>
-                        <input type="date" 
-                               id="tanggal_terbit"
-                               class="form-control" 
-                               name="tanggal_terbit" 
-                               value="{{ old('tanggal_terbit', now()->format('Y-m-d')) }}"
-                               required
-                               oninvalid="this.setCustomValidity('Mohon isi tanggal terbit SK')"
-                               oninput="this.setCustomValidity('')">
+                        <input type="date"
+                            id="tanggal_terbit"
+                            class="form-control"
+                            name="tanggal_terbit"
+                            value="{{ old('tanggal_terbit', now()->format('Y-m-d')) }}"
+                            required
+                            oninvalid="this.setCustomValidity('Mohon isi tanggal terbit SK')"
+                            oninput="this.setCustomValidity('')">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="petugas_menyerahkan" class="form-label">Petugas yang Menyerahkan</label>
-                        <input type="text" 
-                               id="petugas_menyerahkan"
-                               class="form-control" 
-                               name="petugas_menyerahkan" 
-                               value="{{ Auth::user()->name }}"
-                               required>
+                        <input type="text"
+                            id="petugas_menyerahkan"
+                            class="form-control"
+                            name="petugas_menyerahkan"
+                            value="{{ Auth::user()->name }}"
+                            required>
                     </div>
                     <div class="col-md-6">
                         <label for="pemohon_menerima" class="form-label">Nama Penerima</label>
-                        <input type="text" 
-                               id="pemohon_menerima"
-                               class="form-control" 
-                               name="pemohon_menerima" 
-                               value="{{ old('pemohon_menerima', $penerimaanSk->personalData->nama) }}"
-                               required
-                               oninvalid="this.setCustomValidity('Mohon isi nama penerima')"
-                               oninput="this.setCustomValidity('')">
+                        <input type="text"
+                            id="pemohon_menerima"
+                            class="form-control"
+                            name="pemohon_menerima"
+                            value="{{ old('pemohon_menerima', $penerimaanSk->personalData->nama) }}"
+                            required
+                            oninvalid="this.setCustomValidity('Mohon isi nama penerima')"
+                            oninput="this.setCustomValidity('')">
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="tanggal_penyerahan" class="form-label">Tanggal Penyerahan</label>
-                        <input type="date" 
-                               id="tanggal_penyerahan"
-                               class="form-control" 
-                               name="tanggal_penyerahan" 
-                               value="{{ now()->format('Y-m-d') }}"
-                               required>
+                        <input type="date"
+                            id="tanggal_penyerahan"
+                            class="form-control"
+                            name="tanggal_penyerahan"
+                            value="{{ now()->format('Y-m-d') }}"
+                            required>
                     </div>
                     <div class="col-md-6">
                         <label for="foto_penyerahan" class="form-label">Foto Penyerahan</label>
-                        <input type="file" 
-                               id="foto_penyerahan"
-                               class="form-control" 
-                               name="foto_penyerahan" 
-                               accept="image/*" 
-                               required>
+                        <input type="file"
+                            id="foto_penyerahan"
+                            class="form-control"
+                            name="foto_penyerahan"
+                            accept="image/*"
+                            required>
                         <small class="text-muted">Format: JPG, PNG (Maks. 2MB)</small>
                     </div>
                 </div>
@@ -147,32 +147,32 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('penyerahanSkForm');
-        
+
         form.addEventListener('submit', function(event) {
             // Validasi client-side sebelum submit
             const requiredFields = form.querySelectorAll('[required]');
             let isValid = true;
-            
+
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
                     field.reportValidity();
                     isValid = false;
                 }
             });
-            
+
             if (!isValid) {
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
             }
-            
+
             // Tampilkan loading indicator
             const submitButton = form.querySelector('button[type="submit"]');
             if (submitButton) {
                 submitButton.disabled = true;
                 submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             }
-            
+
             return true;
         });
     });

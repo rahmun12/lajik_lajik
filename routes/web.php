@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 // Test Route
 // Include check-data routes
-require __DIR__.'/check-data.php';
+require __DIR__ . '/check-data.php';
 
 // Homepage Route
 Route::get('/', function () {
@@ -75,24 +75,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::resource('serah-terima', 'App\Http\Controllers\Admin\SerahTerimaController')
         ->names('serah-terima')
         ->except(['edit', 'update']);
-        
+
     Route::put('serah-terima/update-field/{id}', 'App\Http\Controllers\Admin\SerahTerimaController@updateField')
         ->name('serah-terima.update-field');
-        
+
     Route::post('serah-terima/upload-document', 'App\Http\Controllers\Admin\SerahTerimaController@uploadDocument')
         ->name('serah-terima.upload-document');
 
     // Penerimaan SK Routes
     Route::resource('penerimaan-sk', 'App\Http\Controllers\Admin\PenerimaanSkController')
         ->names('penerimaan-sk');
-        
+
     Route::put('penerimaan-sk/update-field/{id}', 'App\Http\Controllers\Admin\PenerimaanSkController@updateField')
         ->name('penerimaan-sk.update-field');
 
     // Penyerahan SK Routes
     Route::resource('penyerahan-sk', 'App\Http\Controllers\Admin\PenyerahanSkController')
         ->names('penyerahan-sk');
-        
+
     Route::post('penyerahan-sk/upload-foto/{id}', 'App\Http\Controllers\Admin\PenyerahanSkController@uploadFoto')
         ->name('penyerahan-sk.upload-foto');
 });
+
+// File access route
+Route::get('/file/{filename}', 'App\Http\Controllers\FileController@show')
+    ->name('file.show');

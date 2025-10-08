@@ -46,8 +46,11 @@ class PenerimaanSk extends Model
         return $this->belongsTo(JenisIzin::class, 'jenis_izin_id')
             ->withTrashed();
     }
-    // public function serahTerima()
-    // {
-    //     return $this->belongsTo(SerahTerima::class, 'personal_data_id');
-    // }
+    /**
+     * Get the penyerahan SK associated with the penerimaan SK.
+     */
+    public function penyerahanSk()
+    {
+        return $this->hasOne(\App\Models\PenyerahanSk::class, 'penerimaan_sk_id');
+    }
 }
