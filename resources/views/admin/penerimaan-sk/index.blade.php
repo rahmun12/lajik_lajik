@@ -207,8 +207,9 @@
                                             'penyerahan_sk_exists' => isset($item['penyerahan_sk'])
                                         ];
                                         $logDataJson = json_encode($logData);
+                                        $itemId = is_array($item) ? ($item['id'] ?? 'unknown') : $item->id;
                                         echo "<script>
-                                            console.log('Pengecekan Status - ID: " . $item['id'] . "', " . $logDataJson . ");
+                                            console.log('Pengecekan Status - ID: " . $itemId . "', " . addslashes($logDataJson) . ");
                                         </script>";
                                     }
                                 } else {

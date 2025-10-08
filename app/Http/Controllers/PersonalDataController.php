@@ -117,22 +117,12 @@ class PersonalDataController extends Controller
             // Get the jenis izin name for the success message
             $jenisIzin = JenisIzin::find($request->jenis_izin);
             
-            // Check if user is admin
-            if (auth()->check() && auth()->user()->role === 'admin') {
-                // For admin, redirect to penyesuaian data with success message
-                return redirect()->route('admin.penyesuaian-data')
-                    ->with([
-                        'success' => 'Data berhasil disimpan!',
-                        'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' untuk ' . $request->nama . ' berhasil disimpan. Nomor pengajuan: #' . $personalData->id
-                    ]);
-            } else {
-                // For regular users, redirect back with success message
-                return redirect()->back()
-                    ->with([
-                        'success' => 'Terima kasih, ' . $request->nama . '!',
-                        'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' Anda berhasil dikirim. Kami akan segera memproses permohonan Anda. Nomor pengajuan Anda adalah #' . $personalData->id . '.'
-                    ]);
-            }
+            // Always redirect back to the form page with success message (removed admin check)
+            return redirect()->back()
+                ->with([
+                    'success' => 'Terima kasih, ' . $request->nama . '!',
+                    'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' Anda berhasil dikirim. Kami akan segera memproses permohonan Anda. Nomor pengajuan Anda adalah #' . $personalData->id . '.'
+                ]);
             
         } catch (\Exception $e) {
             // Rollback the transaction on error
@@ -197,7 +187,7 @@ class PersonalDataController extends Controller
         $personalData = PersonalData::findOrFail($id);
         $personalData->is_verified = $request->is_verified;
         $personalData->verification_notes = $request->notes;
-        $personalData->verified_by = auth()->id();
+        $personalData->verified_by = Auth::id();
         $personalData->verified_at = now();
         $personalData->save();
 
@@ -227,7 +217,7 @@ class PersonalDataController extends Controller
             ],
             [
                 'is_verified' => $request->is_verified,
-                'verified_by' => auth()->id(),
+                'verified_by' => Auth::id(),
                 'verified_at' => now(),
                 'notes' => $request->notes
             ]
@@ -282,7 +272,7 @@ class PersonalDataController extends Controller
                 ],
                 [
                     'is_verified' => true,
-                    'verified_by' => auth()->id(),
+                    'verified_by' => Auth::id(),
                     'verified_at' => now(),
                     'notes' => $request->notes
                 ]
@@ -324,7 +314,7 @@ class PersonalDataController extends Controller
             ],
             [
                 'is_verified' => $request->is_verified,
-                'verified_by' => auth()->id(),
+                'verified_by' => Auth::id(),
                 'verified_at' => now(),
                 'notes' => $request->notes
             ]
