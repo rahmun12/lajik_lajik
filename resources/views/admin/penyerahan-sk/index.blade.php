@@ -33,7 +33,7 @@
                         <th>Petugas Menyerahkan</th>
                         <th>Pemohon Menerima</th>
                         <th>Foto</th>
-                        <th>Aksi</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +55,7 @@
                                 -
                             @endif
                         </td>
-                        <td>
+                        <!-- <td>
                             <a href="{{ route('admin.penyerahan-sk.edit', $item->id) }}" class="btn btn-sm btn-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -66,7 +66,7 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
-                        </td>
+                        </td> -->
                     </tr>
                     @empty
                     <tr>

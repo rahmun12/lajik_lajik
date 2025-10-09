@@ -75,15 +75,18 @@ class SerahTerimaController extends Controller
     {
         try {
             $data = PersonalData::with(['serahTerima', 'jenisIzin'])
+                ->whereHas('serahTerima')
                 ->where('is_verified', 1)
-                ->orderBy('created_at', 'desc')
+                ->join('serah_terima', 'personal_data.id', '=', 'serah_terima.personal_data_id')
+                ->orderBy('serah_terima.created_at', 'desc')
+                ->orderBy('serah_terima.updated_at', 'desc')
+                ->select('personal_data.*')
                 ->paginate(10);
 
             return view('admin.serah-terima.index', compact('data'));
         } catch (\Exception $e) {
             Log::error('Error in index: ' . $e->getMessage());
-            dd($e);
-            // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 

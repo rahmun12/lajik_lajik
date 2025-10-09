@@ -111,7 +111,7 @@
                             $personalDataId = is_array($item) ? ($item['personal_data_id'] ?? $item['id'] ?? '') : $item->personal_data_id;
                             @endphp
                             <div class="view-mode">
-                                <span class="value">{{ $noSkIzin ?: 'N/A' }}</span>
+                                <span class="value">{{ $noSkIzin ?: 'isi no sk' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">
@@ -130,12 +130,12 @@
                         {{-- Petugas Menyerahkan --}}
                         <td>
                             @php
-                            $petugasMenyerahkan = is_array($item) ? ($item['petugas_menyerahkan'] ?? '') : ($item->petugas_menyerahkan ?? '');
-                            $isSerahTerima = is_array($item) ? ($item['is_serah_terima'] ?? false) : false;
+                            // Get the petugas_menerima value to show in petugas_menyerahkan field
+                            $petugasMenyerahkan = is_array($item) ? ($item['petugas_menerima'] ?? '') : ($item->petugas_menerima ?? '');
                             $personalDataId = is_array($item) ? ($item['personal_data_id'] ?? $item['id'] ?? '') : $item->personal_data_id;
                             @endphp
                             <div class="view-mode">
-                                <span class="value">{{ $petugasMenyerahkan ?: 'N/A' }}</span>
+                                <span class="value">{{ $petugasMenyerahkan ?: 'isi nama' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">
@@ -154,10 +154,12 @@
                         {{-- Petugas Menerima --}}
                         <td>
                             @php
-                            $petugasMenerima = is_array($item) ? ($item['petugas_menerima'] ?? '') : ($item->petugas_menerima ?? '');
+                            // Get the petugas_menyerahkan value to show in petugas_menerima field
+                            $petugasMenerima = is_array($item) ? ($item['petugas_menyerahkan'] ?? '') : ($item->petugas_menyerahkan ?? '');
+                            $personalDataId = is_array($item) ? ($item['personal_data_id'] ?? $item['id'] ?? '') : $item->personal_data_id;
                             @endphp
                             <div class="view-mode">
-                                <span class="value">{{ $petugasMenerima ?: 'N/A' }}</span>
+                                <span class="value">{{ $petugasMenerima ?: 'isi nama' }}</span>
                                 <button class="btn btn-sm btn-link edit-btn"><i class="fas fa-edit"></i></button>
                             </div>
                             <div class="edit-mode d-none">

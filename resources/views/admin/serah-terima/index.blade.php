@@ -43,28 +43,28 @@
                         <td>{{ $item->jenisIzin->nama_izin ?? 'N/A' }}</td>
                         <td class="foto-berkas-cell">
                             @if($item->serahTerima && $item->serahTerima->foto_berkas)
-                                <div class="document-preview">
-                                    @php
-                                        $extension = pathinfo($item->serahTerima->foto_berkas, PATHINFO_EXTENSION);
-                                        $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-                                    @endphp
-                                    @if($isImage)
-                                        <img src="{{ asset('storage/' . $item->serahTerima->foto_berkas) }}" 
-                                             class="img-thumbnail document-image" 
-                                             style="max-width: 100px; max-height: 100px; cursor: pointer;"
-                                             onclick="viewImage(this)"
-                                             data-doc="foto_berkas">
-                                    @else
-                                        <a href="{{ asset('storage/' . $item->serahTerima->foto_berkas) }}" target="_blank" class="text-decoration-none">
-                                            <i class="fas fa-file-pdf fa-3x text-danger"></i>
-                                            <div class="mt-1">
-                                                <small class="text-muted">Lihat Dokumen</small>
-                                            </div>
-                                        </a>
-                                    @endif
-                                </div>
+                            <div class="document-preview">
+                                @php
+                                $extension = pathinfo($item->serahTerima->foto_berkas, PATHINFO_EXTENSION);
+                                $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
+                                @endphp
+                                @if($isImage)
+                                <img src="{{ asset('storage/' . $item->serahTerima->foto_berkas) }}"
+                                    class="img-thumbnail document-image"
+                                    style="max-width: 100px; max-height: 100px; cursor: pointer;"
+                                    onclick="viewImage(this)"
+                                    data-doc="foto_berkas">
+                                @else
+                                <a href="{{ asset('storage/' . $item->serahTerima->foto_berkas) }}" target="_blank" class="text-decoration-none">
+                                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                                    <div class="mt-1">
+                                        <small class="text-muted">Lihat Dokumen</small>
+                                    </div>
+                                </a>
+                                @endif
+                            </div>
                             @else
-                                <span class="text-muted">-</span>
+                            <span class="text-muted">-</span>
                             @endif
                             <div class="upload-form d-none">
                                 <form class="upload-foto-form" enctype="multipart/form-data">
@@ -225,13 +225,13 @@
                 </div>
             </div>
         `;
-        
+
         $('body').append(modal);
         const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
         imageModal.show();
-        
+
         // Remove modal from DOM after it's hidden
-        $('#imageModal').on('hidden.bs.modal', function () {
+        $('#imageModal').on('hidden.bs.modal', function() {
             $(this).remove();
         });
     }

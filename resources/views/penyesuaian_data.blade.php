@@ -19,6 +19,8 @@
                 <table class="table table-striped table-hover" id="verificationTable">
                     <thead class="table-dark">
                         <tr>
+                            <th>No</th>
+                            <th>Tanggal Dibuat</th>
                             <th>Nama</th>
                             <th>No. KTP</th>
                             <th>No. Telp</th>
@@ -32,6 +34,8 @@
                     <tbody>
                         @foreach($data as $item)
                         <tr data-id="{{ $item->id }}">
+                            <td></td> <!-- Leave empty, will be populated by DataTables -->
+                            <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="form-check me-2">
@@ -577,8 +581,32 @@
         }
 
         $(document).ready(function() {
-            // Initialize DataTable
+            // Initialize DataTable with sorting by created_at in descending order
             var table = $('#verificationTable').DataTable({
+                order: [[1, 'desc']], // Sort by second column (created_at) in descending order
+                pageLength: 25, // Show 25 entries by default
+                stateSave: true, // Save table state (sorting, pagination, etc.)
+                columnDefs: [
+                    { 
+                        searchable: false,
+                        orderable: false,
+                        targets: 0,
+                        className: 'dt-body-center'
+                    },
+                    { targets: 1, type: 'date-eu' } // Properly sort date in DD/MM/YYYY format
+                ],
+                // Add row numbers that persist after sorting/filtering
+                createdRow: function(row, data, dataIndex) {
+                    $('td:eq(0)', row).html(dataIndex + 1);
+                },
+                // Update row numbers when page changes
+                drawCallback: function() {
+                    var api = this.api();
+                    var startIndex = api.page.info().start;
+                    api.column(0, {search: 'applied', order: 'applied'}).nodes().each(function(cell, i) {
+                        cell.innerHTML = startIndex + i + 1;
+                    });
+                },
                 initComplete: function() {
                     // Update row verification status on page load
                     this.api().rows().every(function() {
@@ -794,6 +822,63 @@
 
                 // Generate personal information
                 let detailsHtml = `
+                <!-- KTP & KK Photos Section -->
+                <div class="mb-4">
+                    <h6 class="border-bottom pb-2">Dokumen Pribadi</h6>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Foto KTP</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    ${item.foto_ktp ? 
+                                        `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                              class="img-fluid img-thumbnail document-preview" 
+                                              style="max-height: 200px; cursor: pointer;" 
+                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                              onclick="viewImage(this)">
+                                         <div class="mt-2">
+                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                target="_blank" 
+                                                class="btn btn-sm btn-outline-primary mt-2">
+                                                 <i class="fas fa-download"></i> Unduh KTP
+                                             </a>
+                                         </div>`
+                                        : 
+                                        '<div class="text-muted">Tidak ada foto KTP</div>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">Foto KK</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    ${item.foto_kk ? 
+                                        `<img src="${item.foto_kk.startsWith('http') ? '' : '/storage/'}${item.foto_kk}" 
+                                              class="img-fluid img-thumbnail document-preview" 
+                                              style="max-height: 200px; cursor: pointer;" 
+                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                              onclick="viewImage(this)">
+                                         <div class="mt-2">
+                                             <a href="${item.foto_kk.startsWith('http') ? '' : '/storage/'}${item.foto_kk}" 
+                                                target="_blank" 
+                                                class="btn btn-sm btn-outline-primary mt-2">
+                                                 <i class="fas fa-download"></i> Unduh KK
+                                             </a>
+                                         </div>`
+                                        : 
+                                        '<div class="text-muted">Tidak ada foto KK</div>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <h4 class="mb-4">Detail Data Pengajuan</h4>
                     <h6 class="border-bottom pb-2">Data Pribadi</h6>

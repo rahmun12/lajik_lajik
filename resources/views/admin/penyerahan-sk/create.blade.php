@@ -79,8 +79,11 @@
                             id="petugas_menyerahkan"
                             class="form-control"
                             name="petugas_menyerahkan"
-                            value="{{ Auth::user()->name }}"
-                            required>
+                            value="{{ old('petugas_menyerahkan') }}"
+                            required
+                            oninvalid="this.setCustomValidity('Mohon isi nama petugas yang menyerahkan')"
+                            oninput="this.setCustomValidity('')"
+                            placeholder="Masukkan nama petugas">
                     </div>
                     <div class="col-md-6">
                         <label for="pemohon_menerima" class="form-label">Nama Penerima</label>
