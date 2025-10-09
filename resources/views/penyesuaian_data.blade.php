@@ -85,10 +85,12 @@
                                     </div>
                                     <div>
                                         <label for="alamat-{{ $item->id }}" class="mb-0 d-block {{ $item->getFieldVerificationStatus('alamat') ? 'verified-field' : '' }}">
-                                            {{ $item->alamat_jalan }},
-                                            RT {{ $item->rt ?? '-' }}/RW {{ $item->rw ?? '-' }},
-                                            {{ $item->kelurahan }}, {{ $item->kecamatan }},
-                                            {{ $item->kabupaten_kota }} {{ $item->kode_pos }}
+                                            <div class="address-stack">
+                                                <div>{{ $item->alamat_jalan }}</div>
+                                                <div>RT {{ $item->rt ?? '-' }} / RW {{ $item->rw ?? '-' }}</div>
+                                                <div>{{ $item->kelurahan }}, {{ $item->kecamatan }}</div>
+                                                <div>{{ $item->kabupaten_kota }} {{ $item->kode_pos }}</div>
+                                            </div>
                                         </label>
                                     </div>
                                 </div>
@@ -260,6 +262,222 @@
         tr.verified-row {
             background-color: #f8fff8;
         }
+
+        /* Address stacked layout (scoped) */
+        .address-stack {
+            max-width: 520px; /* avoid pushing table too wide */
+        }
+        .address-stack > * {
+            line-height: 1.25;
+        }
+        .address-stack label {
+            white-space: normal;
+            word-break: break-word;
+        }
+        @media (max-width: 992px) {
+            .address-stack { max-width: 100%; }
+        }
+
+        /* Neat borders for verification table (scoped) */
+        #verificationTable {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%; /* fill container width only */
+            max-width: 100%;
+            font-size: 0.95rem; /* slightly compact text for clean look */
+        }
+        #verificationTable thead th,
+        #verificationTable tbody td {
+            border-right: 1px solid rgba(0,0,0,0.06); /* softer borders */
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+        #verificationTable thead th {
+            border-bottom: 2px solid rgba(0,0,0,0.08); /* slightly stronger header divider */
+        }
+        #verificationTable tr th:first-child,
+        #verificationTable tr td:first-child {
+            border-left: 1px solid rgba(0,0,0,0.06);
+        }
+        /* Optional subtle outer border via first header row */
+        #verificationTable thead tr:first-child th {
+            border-top: 1px solid rgba(0,0,0,0.06);
+        }
+
+        /* Subtle zebra and hover for cleanliness */
+        #verificationTable tbody tr:nth-of-type(odd) {
+            background-color: #fafafa;
+        }
+        #verificationTable tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Reallocate width: balance Name and Address */
+        #verificationTable th:nth-child(1),
+        #verificationTable td:nth-child(1) { /* Nama */
+            width: 16%;
+        }
+        #verificationTable th:nth-child(4),
+        #verificationTable td:nth-child(4) { /* Alamat */
+            width: 38%;
+        }
+
+        /* Truncate long names nicely within the narrower column */
+        #verificationTable td:nth-child(1) label {
+            display: inline-block;
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Slightly larger spacing for tables on this page (scoped) */
+        .card .table th,
+        .card .table td {
+            padding: 1.15rem 1.05rem; /* a bit wider horizontally */
+        }
+        /* Modal detail tables */
+        .modal .table th,
+        .modal .table td {
+            padding: 1.05rem 1.0rem; /* a bit wider horizontally */
+        }
+        @media (max-width: 992px) {
+            .card .table th,
+            .card .table td {
+                padding: 1.05rem 0.55rem; /* keep height, trim width further on small screens */
+            }
+            .modal .table th,
+            .modal .table td {
+                padding: 0.95rem 0.50rem;
+            }
+        }
+
+        /* Align status and actions for tidy look */
+        #verificationTable th:nth-child(6),
+        #verificationTable td:nth-child(6),
+        #verificationTable th:nth-child(8),
+        #verificationTable td:nth-child(8) {
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Compact button group spacing */
+        #verificationTable .btn-group .btn {
+            margin-right: 6px;
+        }
+        #verificationTable .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+
+        /* DataTables controls polish (scoped to this table) */
+        #verificationTable_wrapper .dataTables_length label,
+        #verificationTable_wrapper .dataTables_filter label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.5rem; /* normal spacing */
+            font-size: 0.95rem; /* normal size */
+            white-space: nowrap; /* keep in one line */
+        }
+        #verificationTable_wrapper .dataTables_length select {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.45rem 0.75rem; /* normal touch target */
+            padding-right: 2rem; /* give space for native arrow */
+            background-color: #fff;
+            font-size: 0.95rem;
+            width: auto;
+            min-width: 90px;
+            max-width: 140px; /* avoid stretching but prevent crowding */
+            vertical-align: middle;
+            background-position: right 0.6rem center; /* for browsers that render bg icon */
+            background-repeat: no-repeat;
+        }
+        #verificationTable_wrapper .dataTables_filter input {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 0.5rem 0.75rem; /* normal */
+            padding-left: 2rem; /* space for inside icon */
+            background-color: #fff;
+            min-width: 220px;
+            max-width: 240px; /* prevent wrapping and keep in one row */
+            font-size: 0.95rem;
+        }
+
+        /* Full-width table container */
+        .card .table-responsive { max-width: none; width: 100%; margin: 0; overflow-x: auto; }
+        #verificationTable_wrapper { max-width: none; width: 100%; margin: 0; padding: 0.25rem 0; }
+
+        /* Top controls: length (left) + search (right) on the same line */
+        #verificationTable_wrapper .row:first-child {
+            display: flex !important;
+            flex-wrap: nowrap !important; /* keep in one row on wide screens */
+            align-items: center !important;
+            justify-content: space-between !important; /* push to edges */
+            gap: 8px;
+            width: 100%;
+        }
+        /* Override Bootstrap grid widths */
+        #verificationTable_wrapper .row:first-child > div { flex: 0 0 auto !important; width: auto !important; max-width: none !important; }
+        #verificationTable_wrapper .dataTables_length { order: 1; }
+        #verificationTable_wrapper .dataTables_filter { order: 2; margin-left: auto !important; display: flex !important; align-items: center; }
+        #verificationTable_wrapper .dataTables_filter label { display: inline-flex; align-items: center; }
+        /* Keep labels on one line on wide screens */
+        #verificationTable_wrapper .dataTables_length label,
+        #verificationTable_wrapper .dataTables_filter label { white-space: nowrap; }
+
+        /* Bottom info and pagination aligned cleanly */
+        #verificationTable_wrapper .row:last-child {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        /* Ensure action buttons look consistent */
+        #verificationTable .btn-group .btn { padding: 0.4rem 0.6rem; }
+
+        /* Responsive stacking for small/medium screens */
+        @media (max-width: 768px) {
+            #verificationTable_wrapper .row:first-child { gap: 6px; flex-wrap: wrap !important; }
+            #verificationTable_wrapper .dataTables_length,
+            #verificationTable_wrapper .dataTables_filter { flex: 1 1 100% !important; order: unset; margin-left: 0 !important; }
+            #verificationTable_wrapper .dataTables_filter label { width: 100%; }
+            #verificationTable_wrapper .dataTables_filter input { width: 100%; max-width: 100%; }
+            #verificationTable_wrapper .dataTables_length label,
+            #verificationTable_wrapper .dataTables_filter label { white-space: normal; }
+        }
+        /* Search with icon placed inside the input */
+        #verificationTable_wrapper .dataTables_filter label { position: relative; display: inline-flex; align-items: center; }
+        #verificationTable_wrapper .dataTables_filter label:before {
+            content: "\f002"; /* fa-magnifying-glass */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #9ca3af;
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 0.9rem;
+        }
+        #verificationTable_wrapper .dataTables_filter input { padding-left: 2rem; }
+        #verificationTable_wrapper .dataTables_length select:focus,
+        #verificationTable_wrapper .dataTables_filter input:focus {
+            outline: none;
+            border-color: #d1d5db;
+            box-shadow: 0 0 0 0.15rem rgba(107,114,128,0.15);
+        }
+        /* Align controls responsively */
+        #verificationTable_wrapper .row:first-child { align-items: center; }
+        #verificationTable_wrapper .dataTables_info {
+            color: #6b7280; /* gray-500 */
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        #verificationTable_wrapper .dataTables_paginate .pagination {
+            margin: 0.25rem 0 0;
+        }
     </style>
     @endpush
 
@@ -366,6 +584,14 @@
                     this.api().rows().every(function() {
                         updateRowVerificationStatus($(this.node()));
                     });
+
+                    // Polish search UI: placeholder and remove default label text
+                    const $wrapper = $('#verificationTable_wrapper');
+                    const $filter = $wrapper.find('.dataTables_filter');
+                    $filter.find('input')
+                        .attr('placeholder', 'Cari nama, alamat, jenis izin, status...');
+                    // Remove the default text node (e.g., 'Cari:') inside label
+                    $filter.find('label').contents().filter(function() { return this.nodeType === 3; }).remove();
                 },
                 order: [
                     [0, 'desc']
@@ -373,15 +599,15 @@
                 language: {
                     "decimal": "",
                     "emptyTable": "Tidak ada data yang tersedia",
-                    "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                    "info": "Menampilkan _START_–_END_ dari _TOTAL_ data",
                     "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
                     "infoFiltered": "(disaring dari _MAX_ total data)",
                     "infoPostFix": "",
                     "thousands": ".",
-                    "lengthMenu": "Tampilkan _MENU_ data",
+                    "lengthMenu": "Tampilkan _MENU_ / halaman",
                     "loadingRecords": "Memuat...",
                     "processing": "Memproses...",
-                    "search": "Cari:",
+                    "search": "",
                     "zeroRecords": "Tidak ditemukan data yang sesuai",
                     "paginate": {
                         "first": "Pertama",
