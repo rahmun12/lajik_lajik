@@ -36,6 +36,8 @@ Route::get('/pengajuan-izin', [PersonalDataController::class, 'create'])
 Route::get('/api/kabupaten', [AddressController::class, 'getKabupatenKota']);
 Route::get('/api/kecamatan/{kabupatenId}', [AddressController::class, 'getKecamatan']);
 Route::get('/api/kelurahan/{kecamatanId}', [AddressController::class, 'getKelurahan']);
+Route::get('/api/kelurahan/{id}', [AddressController::class, 'getKelurahan']);
+
 
 Route::post('/pengajuan-izin', [PersonalDataController::class, 'store'])
     ->name('pengajuan.izin.store');
