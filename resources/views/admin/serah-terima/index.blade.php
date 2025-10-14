@@ -15,17 +15,16 @@
 @if(session('error'))
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
     {{ session('error') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 @endif
 
-<div class="card">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-hover align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>#</th>
+                        <th>No</th>
                         <th>Nama Pemohon</th>
                         <th>Jenis Izin</th>
                         <th>Foto Berkas</th>
@@ -38,10 +37,10 @@
                 <tbody>
                     @forelse($data as $item)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $item->nama ?? 'N/A' }}</td>
-                        <td>{{ $item->jenisIzin->nama_izin ?? 'N/A' }}</td>
-                        <td class="foto-berkas-cell">
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        <td class="align-middle">{{ $item->nama ?? 'N/A' }}</td>
+                        <td class="align-middle">{{ $item->jenisIzin->nama_izin ?? 'N/A' }}</td>
+                        <td class="foto-berkas-cell" style="min-width: 120px;">
                             @if($item->serahTerima && $item->serahTerima->foto_berkas)
                             <div class="document-preview">
                                 @php
@@ -83,9 +82,11 @@
                         </td>
                         <td>
                             <div class="view-mode">
-                                <span class="value">{{ $item->serahTerima->petugas_menyerahkan ?? '-' }}</span>
-                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menyerahkan">
-                                    <i class="fas fa-edit"></i>
+                                <div class="text-truncate" style="max-width: 200px;" title="{{ $item->serahTerima->petugas_menyerahkan ?? '-' }}">
+                                    {{ $item->serahTerima->petugas_menyerahkan ?? '-' }}
+                                </div>
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menyerahkan" data-bs-toggle="tooltip" title="Edit">
+                                    <i class="fas fa-edit text-primary"></i>
                                 </button>
                             </div>
                             <div class="edit-mode d-none">
@@ -103,9 +104,11 @@
                         </td>
                         <td>
                             <div class="view-mode">
-                                <span class="value">{{ $item->serahTerima->petugas_menerima ?? '-' }}</span>
-                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menerima">
-                                    <i class="fas fa-edit"></i>
+                                <div class="text-truncate" style="max-width: 200px;" title="{{ $item->serahTerima->petugas_menerima ?? '-' }}">
+                                    {{ $item->serahTerima->petugas_menerima ?? '-' }}
+                                </div>
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menerima" data-bs-toggle="tooltip" title="Edit">
+                                    <i class="fas fa-edit text-primary"></i>
                                 </button>
                             </div>
                             <div class="edit-mode d-none">
@@ -121,26 +124,50 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $item->serahTerima ? ($item->serahTerima->waktu_serah_terima ? \Carbon\Carbon::parse($item->serahTerima->waktu_serah_terima)->format('d/m/Y H:i') : 'Belum diserahkan') : 'Belum diserahkan' }}</td>
-                        <td>
-                            @if($item->serahTerima && $item->serahTerima->petugas_menyerahkan && $item->serahTerima->petugas_menerima)
-                            <span class="badge bg-success">Selesai</span>
+                        <td class="text-center">
+                            @if($item->serahTerima && $item->serahTerima->waktu_serah_terima)
+                                <div class="d-flex flex-column">
+                                    <span class="text-nowrap">{{ \Carbon\Carbon::parse($item->serahTerima->waktu_serah_terima)->translatedFormat('d M Y') }}</span>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($item->serahTerima->waktu_serah_terima)->translatedFormat('H:i') }}</small>
+                                </div>
                             @else
-                            <span class="badge bg-warning">Belum Selesai</span>
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($item->serahTerima && $item->serahTerima->petugas_menyerahkan && $item->serahTerima->petugas_menerima)
+                                <span class="badge bg-success bg-opacity-10 text-success">Selesai</span>
+                            @else
                             @endif
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center">Tidak ada data serah terima.</td>
+                        <td colspan="8" class="text-center py-5">
+                            <div class="text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                <p class="mb-0">Tidak ada data serah terima</p>
+                            </div>
+                        </td>
                     </tr>
-                    @endforelse
+                @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="mt-3">
-            {{ $data->links() }}
+        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+            <div class="text-muted small">
+                @if($data->count() > 0)
+                    Menampilkan {{ $data->firstItem() }} - {{ $data->lastItem() }} dari {{ $data->total() }} data
+                @else
+                    Tidak ada data yang ditampilkan
+                @endif
+            </div>
+            <div>
+                @if($data->hasPages())
+                    {{ $data->links() }}
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -148,32 +175,196 @@
 
 @push('styles')
 <style>
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        margin: 1.5rem auto;
+        max-width: 99%;  /* Almost full width */
+        width: 100%;
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    /* Table Header - Using Bootstrap table-dark */
+    .table thead th {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 10px 12px;
+        white-space: nowrap;
+        vertical-align: middle;
+        height: 46px;
+        border-bottom-width: 2px;
+    }
+
+    /* Table Cells */
+    .table td {
+        padding: 10px 12px;
+        vertical-align: middle;
+        border-top: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: #333;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table > :not(:first-child) {
+        border-top: none;
+    }
+
+    .table.table-dark {
+        --bs-table-bg: #212529;
+        --bs-table-striped-bg: #2c3034;
+        --bs-table-striped-color: #fff;
+        --bs-table-active-bg: #373b3e;
+        --bs-table-active-color: #fff;
+        --bs-table-hover-bg: #323539;
+        --bs-table-hover-color: #fff;
+        color: #fff;
+        border-color: #373b3e;
+    }
+
+    .table-hover > tbody > tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
     .edit-btn,
     .upload-foto-btn,
     .edit-foto-btn {
         cursor: pointer;
         z-index: 10;
         position: relative;
+        transition: opacity 0.2s;
     }
 
+    /* Edit and View Mode Styling */
+    .edit-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .edit-btn:hover {
+        opacity: 0.8;
+        transform: translateY(-1px);
+    }
+
+    /* View/Edit Mode */
     .view-mode,
-    .edit-mode,
-    .foto-berkas-cell {
-        min-height: 38px;
+    .edit-mode {
+        min-height: 42px;
         display: flex;
         align-items: center;
         position: relative;
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        font-size: 0.9rem;
+        margin: 2px 0;
     }
 
+    .view-mode {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+
+    .edit-mode {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Foto Berkas Cell */
     .foto-berkas-cell {
+        min-height: 42px;
+        display: flex;
         flex-direction: column;
         align-items: flex-start;
+        justify-content: center;
+        padding: 8px 10px;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .action-buttons .btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    .foto-berkas-cell .badge {
+        margin-top: 4px;
+        font-size: 0.8rem;
+        padding: 3px 6px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    .document-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: #f8f9fa;
+        border-radius: 0.25rem;
+        overflow: hidden;
+        transition: all 0.2s;
+        margin: 0 auto;
+    }
+
+    .document-preview:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    }
+
+    .document-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform 0.2s;
+    }
+
+    .document-image:hover {
+        transform: scale(1.05);
     }
 
     .upload-form {
         display: none;
-        margin-top: 5px;
+        margin-top: 8px;
         width: 100%;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 0.375rem;
     }
 
     .upload-form.active {
@@ -181,24 +372,35 @@
     }
 
     .edit-mode .input-group {
-        width: auto;
+        width: 100%;
         min-width: 200px;
+        max-width: 250px;
     }
 
     .edit-mode .form-control {
-        max-width: 200px;
-    }
-
-    .table th,
-    .table td {
-        vertical-align: middle;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
         font-size: 0.875rem;
-        line-height: 1.5;
-        border-radius: 0.2rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .badge {
+        padding: 0.4em 0.8em;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .pagination {
+        margin-bottom: 0;
+    }
+
+    .page-link {
+        padding: 0.5rem 0.75rem;
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
     }
 </style>
 @endpush
@@ -237,6 +439,17 @@
     }
 
     $(document).ready(function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Initialize popovers
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
         // Show toast function
         window.showToast = function(message, type = 'success') {
             const toast = `

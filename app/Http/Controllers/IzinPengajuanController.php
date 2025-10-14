@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\IzinPengajuan;
@@ -18,7 +19,7 @@ class IzinPengajuanController extends Controller
             return redirect()->route('personal_data.create')->with('error', 'Isi data diri terlebih dahulu.');
         }
 
-        return view('izin_pengajuan.create', compact('personalData','jenisIzin'));
+        return view('izin_pengajuan.create', compact('personalData', 'jenisIzin'));
     }
 
     public function store(Request $request)
@@ -36,6 +37,6 @@ class IzinPengajuanController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('izin_pengajuan.create')->with('success','Pengajuan izin berhasil dikirim.');
+        return redirect()->route('izin_pengajuan.create')->with('success', 'Pengajuan izin berhasil dikirim.');
     }
 }

@@ -102,3 +102,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 // File access route
 Route::get('/file/{filename}', 'App\Http\Controllers\FileController@show')
     ->name('file.show');
+
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
+Route::get('/qrcode', function () {
+    // URL tujuan ketika QR di-scan
+    $url = url('/'); // bisa kamu ganti ke route lain
+    return view('qrcode', compact('url'));
+});

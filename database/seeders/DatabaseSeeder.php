@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             PenerimaanSkSeeder::class,
             // ProvinceSeeder::class, // Uncomment if needed
         ]);
-        
+
         // Create admin user if not exists
         if (!User::where('email', 'admin@example.com')->exists()) {
             User::create([
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
+
         // Create test user if not exists
         if (!User::where('email', 'test@example.com')->exists()) {
             User::create([

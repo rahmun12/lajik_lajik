@@ -19,21 +19,21 @@
 </div>
 @endif
 
-<div class="card">
-    <div class="card-body">
+<div class="card shadow-sm border-0">
+    <div class="card-body p-3">
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-hover align-middle">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Nama Pemohon</th>
-                        <th>Jenis Izin</th>
-                        <th>Tanggal Terbit</th>
-                        <th>No. SK Izin</th>
-                        <th>Petugas Menyerahkan</th>
-                        <th>Petugas Menerima</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
+                        <th width="50" class="text-center">No</th>
+                        <th width="15%">Nama Pemohon</th>
+                        <th width="15%">Jenis Izin</th>
+                        <th width="12%" class="text-center">Tanggal Terbit</th>
+                        <th width="15%" class="text-center">No. SK Izin</th>
+                        <th width="15%">Petugas Menyerahkan</th>
+                        <th width="15%">Petugas Menerima</th>
+                        <th width="10%" class="text-center">Status</th>
+                        <th width="10%" class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -255,7 +255,12 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center">Tidak ada data penerimaan SK</td>
+                        <td colspan="10" class="text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p class="mb-0">Tidak ada data penerimaan SK</p>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -267,6 +272,118 @@
         </div>
     </div>
 </div>
+@push('styles')
+<style>
+    /* Table Styling */
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.08);
+        margin: 1.5rem auto;
+        max-width: 99%;
+        width: 100%;
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table th {
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #fff;
+        background-color: #212529;
+        border: none;
+        padding: 10px 12px;
+        white-space: nowrap;
+        vertical-align: middle;
+        height: 46px;
+    }
+
+    .table td {
+        padding: 10px 12px;
+        vertical-align: middle;
+        border-top: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: #333;
+    }
+
+    .table tbody tr {
+        transition: background-color 0.15s ease;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table > :not(:first-child) {
+        border-top: none;
+    }
+
+    /* View/Edit Mode */
+    .view-mode,
+    .edit-mode {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        font-size: 0.9rem;
+        margin: 2px 0;
+    }
+
+    .view-mode {
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+    }
+
+    .edit-mode {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+    }
+
+    .action-buttons .btn {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 2rem 0;
+        text-align: center;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 $(document).ready(function() {
