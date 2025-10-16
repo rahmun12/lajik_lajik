@@ -2,6 +2,19 @@
 
 @push('styles')
 <style>
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .animate-pulse {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .animate-bounce {
+        animation: bounce 1s infinite;
+    }
+
     body {
         font-size: 1.05rem;
         color: #080b08;
@@ -127,23 +140,59 @@
 
         {{-- Alert sukses --}}
         @if (session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-3" role="alert"
-            style="background-color:#d9d9d9; color:#1f1f1f;">
-            <strong>{{ session('success') }}</strong>
-            @if (session('message'))
-            <p class="mb-0 small">{{ session('message') }}</p>
-            @endif
+        <div class="alert alert-success border-0 shadow-lg rounded-4 mb-4 position-relative overflow-hidden"
+             style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color:#155724; border-left: 5px solid #28a745;"
+             role="alert">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 me-3">
+                    <svg class="w-6 h-6 text-success animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading fw-bold mb-1">
+                        <i class="fas fa-check-circle me-2"></i>Berhasil!
+                    </h6>
+                    <p class="mb-0 fs-6 fw-medium">{{ session('success') }}</p>
+                    @if (session('message'))
+                    <small class="text-muted">{{ session('message') }}</small>
+                    @endif
+                </div>
+                <button type="button" class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
+                        data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
+                 style="background: linear-gradient(45deg, transparent 30%, rgba(40, 167, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
         </div>
         @endif
 
         {{-- Error handling --}}
         @if ($errors->any())
-        <div class="alert alert-danger border-0 shadow-sm rounded-3" style="background-color:#d9d9d9; color:#1f1f1f;">
-            <ul class="mb-0 small">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="alert alert-danger border-0 shadow-lg rounded-4 mb-4 position-relative overflow-hidden"
+             style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color:#721c24; border-left: 5px solid #dc3545;"
+             role="alert">
+            <div class="d-flex align-items-start">
+                <div class="flex-shrink-0 me-3">
+                    <svg class="w-6 h-6 text-danger animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading fw-bold mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Oops! Ada Kesalahan
+                    </h6>
+                    <ul class="mb-2 ps-3" style="list-style-type: '✗ '; padding-left: 1rem;">
+                        @foreach ($errors->all() as $error)
+                        <li class="mb-1 fs-6 fw-medium">{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <small class="text-muted">Mohon periksa kembali form Anda dan pastikan semua field yang wajib diisi telah terisi dengan benar.</small>
+                </div>
+                <button type="button" class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
+                        data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
+                 style="background: linear-gradient(45deg, transparent 30%, rgba(220, 53, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
         </div>
         @endif
 
