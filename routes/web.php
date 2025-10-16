@@ -38,7 +38,6 @@ Route::get('/api/kecamatan/{kabupatenId}', [AddressController::class, 'getKecama
 Route::get('/api/kelurahan/{kecamatanId}', [AddressController::class, 'getKelurahan']);
 Route::get('/api/kelurahan/{id}', [AddressController::class, 'getKelurahan']);
 
-
 Route::post('/pengajuan-izin', [PersonalDataController::class, 'store'])
     ->name('pengajuan.izin.store');
 
@@ -92,8 +91,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('penerimaan-sk.update-field');
 
     // Penyerahan SK Routes
+    // Export Penyerahan SK to Excel - must be defined before resource to avoid route conflict
+    Route::get('penyerahan-sk/export', 'App\Http\Controllers\Admin\PenyerahanSkController@exportExcel')
+        ->name('penyerahan-sk.export');
+        
+    // Resource route for Penyerahan SK (exclude show method if not needed)
     Route::resource('penyerahan-sk', 'App\Http\Controllers\Admin\PenyerahanSkController')
-        ->names('penyerahan-sk');
+        ->names('penyerahan-sk')
+        ->except(['show']);
 
     Route::post('penyerahan-sk/upload-foto/{id}', 'App\Http\Controllers\Admin\PenyerahanSkController@uploadFoto')
         ->name('penyerahan-sk.upload-foto');

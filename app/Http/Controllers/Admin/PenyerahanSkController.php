@@ -7,6 +7,8 @@ use App\Models\PenyerahanSk;
 use App\Models\PersonalData;
 use App\Models\JenisIzin;
 use App\Models\PenerimaanSk;
+use App\Exports\PenyerahanSkExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +27,15 @@ class PenyerahanSkController extends Controller
             ->paginate(10);
 
         return view('admin.penyerahan-sk.index', compact('items'));
+    }
+
+    /**
+     * Export data to Excel
+     */
+    public function exportExcel()
+    {
+        $filename = 'penyerahan_sk_export_' . date('Ymd_His') . '.xlsx';
+        return Excel::download(new PenyerahanSkExport, $filename);
     }
 
     /**
