@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Services\TelegramService;
+use Carbon\Carbon;
 
 class PersonalDataController extends Controller
 {
@@ -113,7 +115,26 @@ class PersonalDataController extends Controller
             
             // Commit the transaction
             DB::commit();
-            
+
+            // Send Telegram notification
+            try {
+                $telegramService = new TelegramService();
+                $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
+                          "📅 Tanggal: " . Carbon::now()->translatedFormat('l, d F Y H:i:s') . "\n" .
+                          "👤 Nama: " . $personalData->nama . "\n" .
+                          "🏠 Alamat: " . $personalData->alamat_jalan . 
+                          (($personalData->rt || $personalData->rw) ? 
+                              " RT " . $personalData->rt . 
+                              "/RW " . $personalData->rw . "\n" : "\n") .
+                          "📋 Jenis Izin: " . JenisIzin::find($request->jenis_izin)->nama_izin . "\n\n" .
+                          "Segera lakukan verifikasi data pengajuan ini.";
+
+                $telegramService->sendNotification($message);
+            } catch (\Exception $e) {
+                // Log error but don't fail the request
+                \Log::error('Failed to send Telegram notification: ' . $e->getMessage());
+            }
+
             // Get the jenis izin name for the success message
             $jenisIzin = JenisIzin::find($request->jenis_izin);
             

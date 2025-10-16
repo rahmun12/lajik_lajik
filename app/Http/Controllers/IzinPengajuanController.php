@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\IzinPengajuan;
 use App\Models\JenisIzin;
 use App\Models\PersonalData;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class IzinPengajuanController extends Controller
 {
@@ -29,14 +31,27 @@ class IzinPengajuanController extends Controller
         ]);
 
         $personalData = PersonalData::where('user_id', Auth::id())->first();
+        $jenisIzin = JenisIzin::find($request->jenis_izin_id);
 
-        IzinPengajuan::create([
+        $pengajuan = IzinPengajuan::create([
             'user_id' => Auth::id(),
             'personal_data_id' => $personalData->id,
             'jenis_izin_id' => $request->jenis_izin_id,
             'status' => 'pending',
         ]);
 
-        return redirect()->route('izin_pengajuan.create')->with('success', 'Pengajuan izin berhasil dikirim.');
+        // Send Telegram notification
+        $telegramService = new TelegramService();
+        $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
+                  "📅 Tanggal: " . Carbon::now()->translatedFormat('l, d F Y H:i:s') . "\n" .
+                  "👤 Nama: " . $personalData->nama . "\n" .
+                  "🏠 Alamat: " . $personalData->alamat_jalan . "\n" .
+                  "📋 Jenis Izin: " . $jenisIzin->nama_izin . "\n\n" .
+                  "Segera lakukan verifikasi data pengajuan ini.";
+
+        $telegramService->sendNotification($message);
+
+        return redirect()->route('izin_pengajuan.create')
+            ->with('success', 'Pengajuan izin berhasil dikirim. Notifikasi telah dikirim ke admin.');
     }
 }
