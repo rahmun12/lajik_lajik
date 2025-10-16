@@ -119,8 +119,10 @@ class PersonalDataController extends Controller
             // Send Telegram notification
             try {
                 $telegramService = new TelegramService();
+                $wibTime = Carbon::now('Asia/Jakarta');
                 $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
-                          "📅 Tanggal: " . Carbon::now()->translatedFormat('l, d F Y H:i:s') . "\n" .
+                          "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
+                          "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
                           "👤 Nama: " . $personalData->nama . "\n" .
                           "🏠 Alamat: " . $personalData->alamat_jalan . 
                           (($personalData->rt || $personalData->rw) ? 
@@ -132,7 +134,7 @@ class PersonalDataController extends Controller
                 $telegramService->sendNotification($message);
             } catch (\Exception $e) {
                 // Log error but don't fail the request
-                \Log::error('Failed to send Telegram notification: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Failed to send Telegram notification: ' . $e->getMessage());
             }
 
             // Get the jenis izin name for the success message

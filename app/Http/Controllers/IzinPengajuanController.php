@@ -42,8 +42,10 @@ class IzinPengajuanController extends Controller
 
         // Send Telegram notification
         $telegramService = new TelegramService();
+        $wibTime = Carbon::now('Asia/Jakarta');
         $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
-                  "📅 Tanggal: " . Carbon::now()->translatedFormat('l, d F Y H:i:s') . "\n" .
+                  "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
+                  "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
                   "👤 Nama: " . $personalData->nama . "\n" .
                   "🏠 Alamat: " . $personalData->alamat_jalan . "\n" .
                   "📋 Jenis Izin: " . $jenisIzin->nama_izin . "\n\n" .
