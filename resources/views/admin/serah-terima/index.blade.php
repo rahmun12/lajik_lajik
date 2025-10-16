@@ -82,18 +82,27 @@
                         </td>
                         <td>
                             <div class="view-mode">
-                                <div class="text-truncate" style="max-width: 200px;" title="{{ $item->serahTerima->petugas_menyerahkan ?? '-' }}">
+                                <div class="text-truncate petugas_menyerahkan-value" style="max-width: 200px;" 
+                                     title="{{ $item->serahTerima->petugas_menyerahkan ?? '-' }}">
                                     {{ $item->serahTerima->petugas_menyerahkan ?? '-' }}
                                 </div>
-                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menyerahkan" data-bs-toggle="tooltip" title="Edit">
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" 
+                                        data-field="petugas_menyerahkan" 
+                                        data-bs-toggle="tooltip" 
+                                        title="Edit">
                                     <i class="fas fa-edit text-primary"></i>
                                 </button>
                             </div>
                             <div class="edit-mode d-none">
                                 <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" value="{{ $item->serahTerima->petugas_menyerahkan ?? '' }}">
-                                    <button class="btn btn-outline-success save-btn" type="button"
-                                        data-id="{{ $item->id }}" data-field="petugas_menyerahkan">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           value="{{ $item->serahTerima->petugas_menyerahkan ?? '' }}"
+                                           placeholder="Nama Petugas">
+                                    <button class="btn btn-outline-success save-btn" 
+                                            type="button"
+                                            data-id="{{ $item->serahTerima->id ?? $item->id }}" 
+                                            data-field="petugas_menyerahkan">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button class="btn btn-outline-secondary cancel-btn" type="button">
@@ -104,18 +113,27 @@
                         </td>
                         <td>
                             <div class="view-mode">
-                                <div class="text-truncate" style="max-width: 200px;" title="{{ $item->serahTerima->petugas_menerima ?? '-' }}">
+                                <div class="text-truncate petugas_menerima-value" style="max-width: 200px;" 
+                                     title="{{ $item->serahTerima->petugas_menerima ?? '-' }}">
                                     {{ $item->serahTerima->petugas_menerima ?? '-' }}
                                 </div>
-                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" data-field="petugas_menerima" data-bs-toggle="tooltip" title="Edit">
+                                <button type="button" class="btn btn-sm btn-link p-0 ms-2 edit-btn" 
+                                        data-field="petugas_menerima" 
+                                        data-bs-toggle="tooltip" 
+                                        title="Edit">
                                     <i class="fas fa-edit text-primary"></i>
                                 </button>
                             </div>
                             <div class="edit-mode d-none">
                                 <div class="input-group input-group-sm">
-                                    <input type="text" class="form-control" value="{{ $item->serahTerima->petugas_menerima ?? '' }}">
-                                    <button class="btn btn-outline-success save-btn" type="button"
-                                        data-id="{{ $item->id }}" data-field="petugas_menerima">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           value="{{ $item->serahTerima->petugas_menerima ?? '' }}"
+                                           placeholder="Nama Petugas">
+                                    <button class="btn btn-outline-success save-btn" 
+                                            type="button"
+                                            data-id="{{ $item->serahTerima->id ?? $item->id }}" 
+                                            data-field="petugas_menerima">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button class="btn btn-outline-secondary cancel-btn" type="button">
@@ -438,6 +456,23 @@
         });
     }
 
+    // Function to show toast message
+    window.showToast = function(message, type = 'success') {
+        const toast = `
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>`;
+        $('.toast-container').remove();
+        $('body').append(toast);
+        $('.toast').toast('show');
+        setTimeout(() => { $('.toast').remove(); }, 3000);
+    };
+
     $(document).ready(function() {
         // Initialize tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -450,59 +485,28 @@
         var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl);
         });
-        // Show toast function
-        window.showToast = function(message, type = 'success') {
-            const toast = `
-            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-                <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        `;
 
-            // Remove any existing toasts
-            $('.toast-container').remove();
-
-            // Add new toast
-            $('body').append(toast);
-            $('.toast').toast('show');
-
-            // Remove toast after 3 seconds
-            setTimeout(() => {
-                $('.toast').remove();
-            }, 3000);
-        };
-        // Toggle edit mode with better event delegation
+        // Toggle edit mode
         $(document).on('click', '.edit-btn', function(e) {
             e.preventDefault();
             e.stopPropagation();
-
+            
             const $btn = $(this);
             const $td = $btn.closest('td');
-
-            // Debug log
-            console.log('Edit button clicked');
-
-            // Hide all other edit modes first
+            
+            // Hide all other edit modes
             $('.edit-mode').addClass('d-none');
             $('.view-mode').removeClass('d-none');
-
+            
             // Show this edit mode
             $td.find('.view-mode').addClass('d-none');
             const $editMode = $td.find('.edit-mode');
             $editMode.removeClass('d-none');
-
+            
             // Focus and select the input
             const $input = $editMode.find('input');
             if ($input.length) {
                 $input.focus().select();
-            } else {
-                console.error('Input field not found in edit mode');
             }
         });
 
@@ -533,87 +537,32 @@
             $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
             // Make AJAX request
-            const updateUrl = '{{ url("admin/serah-terima/update-field") }}';
+            const baseUrl = '{{ url("/") }}';
+            const updateUrl = `${baseUrl}/admin/serah-terima/update-field/${id}`;
             $.ajax({
-                url: `${updateUrl}/${id}`,
+                url: updateUrl,
                 type: 'PUT',
                 data: {
                     field: field,
                     value: value,
                     _token: '{{ csrf_token() }}'
                 },
-                timeout: 10000, // 10 second timeout
                 success: function(response) {
                     if (response.success) {
-                        // Update view
-                        $row.find('.view-mode .value').text(value);
+                        // Update the view
+                        $row.find(`.${field}-value`).text(value);
                         $row.find('.edit-mode').addClass('d-none');
                         $row.find('.view-mode').removeClass('d-none');
-
-                        // Show success message
-                        showToast('Nama petugas berhasil disimpan', 'success');
-
-                        // Update status badge if both officers are filled
-                        if (response.data) {
-                            const {
-                                petugas_menyerahkan,
-                                petugas_menerima,
-                                waktu_serah_terima
-                            } = response.data;
-
-                            // Update the other field if it's being displayed
-                            if (field === 'petugas_menyerahkan') {
-                                $row.siblings().find('.view-mode .value').first().text(petugas_menerima || '-');
-                            } else if (field === 'petugas_menerima') {
-                                $row.siblings().find('.view-mode .value').first().text(petugas_menyerahkan || '-');
-                            }
-
-                            // Update timestamp if available
-                            if (waktu_serah_terima) {
-                                const waktu = new Date(waktu_serah_terima);
-                                $row.closest('tr').find('.waktu-serah-terima').text(
-                                    waktu.toLocaleString('id-ID', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })
-                                );
-
-                                // Update status badge
-                                const $statusBadge = $row.closest('tr').find('.badge');
-                                if ($statusBadge.length) {
-                                    $statusBadge.removeClass('bg-warning').addClass('bg-success')
-                                        .text('Selesai');
-                                }
-                            }
-                        }
+                        showToast('Data berhasil diperbarui');
                     } else {
-                        showToast(response.message || 'Gagal menyimpan data', 'danger');
+                        showToast('Gagal memperbarui data', 'danger');
                     }
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error:', xhr.responseText);
-                    let errorMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-
-                    try {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.message) {
-                            errorMessage = response.message;
-                        }
-                    } catch (e) {
-                        console.error('Error parsing error response:', e);
-                    }
-
-                    showToast(errorMessage, 'danger');
-
-                    // Re-enable the input for correction
-                    $input.focus();
+                error: function() {
+                    showToast('Terjadi kesalahan saat menghubungi server', 'danger');
                 },
                 complete: function() {
-                    $row.find('.save-btn').html('<i class="fas fa-check"></i>');
-                    $row.find('.save-btn, .cancel-btn').prop('disabled', false);
+                    $btn.prop('disabled', false).html('<i class="fas fa-check"></i>');
                 }
             });
         });
@@ -683,9 +632,10 @@
             });
         });
 
-        // Handle Enter key in input
+        // Handle Enter key in input fields
         $(document).on('keypress', '.edit-mode input', function(e) {
             if (e.which === 13) { // Enter key
+                e.preventDefault();
                 $(this).closest('.edit-mode').find('.save-btn').click();
             }
         });
@@ -743,7 +693,9 @@
                         showToast(errorMessage, 'error');
                     },
                     complete: function() {
-                        $button.html('<i class="fas fa-upload"></i> ' + ($button.hasClass('change-doc') ? 'Ganti' : 'Unggah')).prop('disabled', false);
+                        $button.html('<i class="fas fa-upload"></i> ' + 
+                            ($button.hasClass('change-doc') ? 'Ganti' : 'Unggah'))
+                            .prop('disabled', false);
                     }
                 });
             });
@@ -751,8 +703,6 @@
             // Trigger file input click
             $fileInput.click();
         });
-
-        // Show toast notification
     });
 </script>
 @endpush
