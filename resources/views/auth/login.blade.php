@@ -12,13 +12,14 @@
       --bg: #ffffff;         /* Putih */
       --primary: #6b7280;    /* Gray-500 */
       --secondary: #9ca3af;  /* Gray-400 */
-      --border: #d1d5db;     /* Gray netral untuk border */
+      --border: #d1d5db;     /* Abu netral */
     }
 
     * { box-sizing: border-box; }
 
     body {
-      background-color: var(--bg);
+      position: relative;
+      background: linear-gradient(180deg, #f9fafb 0%, #e5e7eb 100%);
       font-family: "Poppins", sans-serif;
       color: var(--text);
       min-height: 100vh;
@@ -26,43 +27,50 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
+
 
     .login-wrapper {
       display: flex;
       width: 850px;
-      min-height: 500px;
+      min-height: 520px;
       background: var(--bg);
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .login-wrapper:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
     }
 
     /* Bagian kiri */
     .login-left {
       flex: 1;
-      background: linear-gradient(135deg, var(--bg), var(--primary));
+      background: linear-gradient(135deg, #e5e7eb, #9ca3af);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 2.5rem;
+      color: #1f2937;
     }
 
     .login-left h2 {
       font-size: 2rem;
       font-weight: 600;
       margin-bottom: 0.5rem;
-      color: var(--text);
     }
 
     .login-left p {
       font-size: 1rem;
-      color: var(--text);
-      opacity: 0.8;
-      max-width: 280px;
-      line-height: 1.5;
+      opacity: 0.85;
+      max-width: 300px;
+      line-height: 1.6;
     }
 
     /* Bagian kanan */
@@ -72,13 +80,15 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      background-color: var(--bg);
     }
 
     .login-right h3 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       font-weight: 600;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
       color: var(--text);
+      text-align: center;
     }
 
     .form-label {
@@ -90,15 +100,12 @@
       border-radius: 12px;
       border: 1.5px solid var(--border);
       padding: 0.75rem 1rem;
-      background-color: var(--bg);
-      color: var(--text);
       transition: all 0.2s ease;
     }
 
     .form-control:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 0.15rem rgba(107,114,128,0.2);
-      background-color: var(--bg);
     }
 
     .btn-login {
@@ -106,9 +113,10 @@
       color: #fff;
       border: none;
       border-radius: 12px;
-      padding: 0.75rem;
+      padding: 0.8rem;
       font-weight: 500;
-      transition: all 0.2s ease;
+      transition: all 0.25s ease;
+      margin-top: 0.5rem;
     }
 
     .btn-login:hover {
@@ -123,13 +131,14 @@
     }
 
     .alert {
-      background-color: var(--bg);
+      background-color: #f9fafb;
       border: 1px solid var(--primary);
       color: var(--text);
       border-radius: 10px;
       padding: 0.75rem 1rem;
       font-size: 0.9rem;
       margin-bottom: 1.5rem;
+      text-align: center;
     }
 
     footer {
@@ -144,10 +153,15 @@
     @media (max-width: 768px) {
       .login-wrapper {
         flex-direction: column;
-        width: 90%;
+        width: 92%;
       }
+
       .login-left, .login-right {
         padding: 2rem 1.5rem;
+      }
+
+      .login-left h2 {
+        font-size: 1.6rem;
       }
     }
   </style>
