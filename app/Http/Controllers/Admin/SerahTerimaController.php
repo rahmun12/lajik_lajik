@@ -154,23 +154,17 @@ class SerahTerimaController extends Controller
             // Start database transaction
             DB::beginTransaction();
 
-            // Find the personal data record
-            $personalData = PersonalData::findOrFail($id);
-
-            // Get or create serah terima record
-            $serahTerima = $personalData->serahTerima ?: new SerahTerima([
-                'personal_data_id' => $id,
-                'jenis_izin_id' => $personalData->jenis_izin_id,
-                'petugas_menyerahkan' => null,
-                'petugas_menerima' => null,
-                'foto_berkas' => null,
-                'waktu_serah_terima' => null
-            ]);
-
-            $field = $validated['field'];
+            // Find or create the serah terima record
+            $serahTerima = SerahTerima::updateOrCreate(
+                ['personal_data_id' => $id],
+                [
+                    'jenis_izin_id' => PersonalData::findOrFail($id)->jenis_izin_id,
+                    $validated['field'] => $validated['value'] ?? null
+                ]
+            );
 
             // Handle file upload if the field is foto_berkas
-            if ($field === 'foto_berkas' && $request->hasFile('file')) {
+            if ($validated['field'] === 'foto_berkas' && $request->hasFile('file')) {
                 // Delete old file if exists
                 if ($serahTerima->foto_berkas && Storage::disk('public')->exists($serahTerima->foto_berkas)) {
                     Storage::disk('public')->delete($serahTerima->foto_berkas);
@@ -179,36 +173,26 @@ class SerahTerimaController extends Controller
                 // Store the new file
                 $path = $request->file('file')->store('serah-terima', 'public');
                 $serahTerima->foto_berkas = $path;
+                $serahTerima->save();
                 $message = 'Foto berkas berhasil diunggah';
-            } else if ($field !== 'foto_berkas') {
-                // For other fields
-                $serahTerima->$field = $validated['value'];
+            } else if ($validated['field'] !== 'foto_berkas') {
                 $message = 'Data berhasil diperbarui';
             }
 
             // Update timestamp if both officers are filled
             if ($serahTerima->petugas_menyerahkan && $serahTerima->petugas_menerima) {
                 $serahTerima->waktu_serah_terima = now();
+                $serahTerima->save();
             }
-
-            // Save the changes
-            $serahTerima->save();
 
             // Commit the transaction
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => $message ?? 'Data berhasil diperbarui',
-                'data' => [
-                    'foto_berkas' => $serahTerima->foto_berkas ? asset('storage/' . $serahTerima->foto_berkas) : null,
-                    'petugas_menyerahkan' => $serahTerima->petugas_menyerahkan,
-                    'petugas_menerima' => $serahTerima->petugas_menerima,
-                    'waktu_serah_terima' => $serahTerima->waktu_serah_terima ?
-                        $serahTerima->waktu_serah_terima->format('d/m/Y H:i') : null,
-                    'status' => $serahTerima->petugas_menyerahkan && $serahTerima->petugas_menerima ?
-                        'Selesai' : 'Belum Selesai'
-                ]
+                'message' => $message,
+                'field' => $validated['field'],
+                'value' => $validated['field'] !== 'foto_berkas' ? $validated['value'] : null
             ]);
         } catch (\Exception $e) {
             // Rollback the transaction on error

@@ -40,7 +40,7 @@
                         <td class="text-center">{{ $loop->iteration }}</td>
                         <td class="align-middle">{{ $item->nama ?? 'N/A' }}</td>
                         <td class="align-middle">{{ $item->jenisIzin->nama_izin ?? 'N/A' }}</td>
-                        <td class="foto-berkas-cell" style="min-width: 120px;">
+                        <td class="foto-berkas-cell" style="min-width: 120px;" data-field="foto_berkas">
                             @if($item->serahTerima && $item->serahTerima->foto_berkas)
                             <div class="document-preview">
                                 @php
@@ -80,7 +80,7 @@
                                 </form>
                             </div>
                         </td>
-                        <td>
+                        <td data-field="petugas_menyerahkan">
                             <div class="view-mode">
                                 <div class="text-truncate petugas_menyerahkan-value" style="max-width: 200px;" 
                                      title="{{ $item->serahTerima->petugas_menyerahkan ?? '-' }}">
@@ -98,11 +98,11 @@
                                     <input type="text" 
                                            class="form-control" 
                                            value="{{ $item->serahTerima->petugas_menyerahkan ?? '' }}"
-                                           placeholder="Nama Petugas">
+                                           name="petugas_menyerahkan">
                                     <button class="btn btn-outline-success save-btn" 
                                             type="button"
-                                            data-id="{{ $item->serahTerima->id ?? $item->id }}" 
-                                            data-field="petugas_menyerahkan">
+                                            data-field="petugas_menyerahkan"
+                                            data-id="{{ $item->id }}">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button class="btn btn-outline-secondary cancel-btn" type="button">
@@ -111,7 +111,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td>
+                        <td data-field="petugas_menerima">
                             <div class="view-mode">
                                 <div class="text-truncate petugas_menerima-value" style="max-width: 200px;" 
                                      title="{{ $item->serahTerima->petugas_menerima ?? '-' }}">
@@ -129,11 +129,11 @@
                                     <input type="text" 
                                            class="form-control" 
                                            value="{{ $item->serahTerima->petugas_menerima ?? '' }}"
-                                           placeholder="Nama Petugas">
+                                           name="petugas_menerima">
                                     <button class="btn btn-outline-success save-btn" 
                                             type="button"
-                                            data-id="{{ $item->serahTerima->id ?? $item->id }}" 
-                                            data-field="petugas_menerima">
+                                            data-field="petugas_menerima"
+                                            data-id="{{ $item->id }}">
                                         <i class="fas fa-check"></i>
                                     </button>
                                     <button class="btn btn-outline-secondary cancel-btn" type="button">
@@ -549,13 +549,44 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        // Update the view
-                        $row.find(`.${field}-value`).text(value);
-                        $row.find('.edit-mode').addClass('d-none');
-                        $row.find('.view-mode').removeClass('d-none');
-                        showToast('Data berhasil diperbarui');
+                        // Show success message
+                        showToast(response.message || 'Data berhasil disimpan');
+                        
+                        // If we have a field and value in the response, update the UI
+                        if (response.field && response.value !== null) {
+                            // Find the cell that was updated
+                            const $cell = $row.find(`[data-field="${response.field}"]`);
+                            
+                            // Update the view mode display
+                            const $viewMode = $cell.find('.view-mode');
+                            const $valueDisplay = $viewMode.find(`.${response.field}-value`);
+                            
+                            // Update the display value
+                            $valueDisplay.text(response.value);
+                            $valueDisplay.attr('title', response.value);
+                            
+                            // Update the input field in edit mode
+                            const $editMode = $cell.find('.edit-mode');
+                            $editMode.find('input').val(response.value);
+                            
+                            // Switch back to view mode
+                            $editMode.addClass('d-none');
+                            $viewMode.removeClass('d-none');
+                            
+                            // If this was the last field, update the status
+                            if (response.field === 'petugas_menerima') {
+                                const $statusCell = $row.find('.status-cell');
+                                if ($statusCell.length) {
+                                    $statusCell.html('<span class="badge bg-success">Selesai</span>');
+                                }
+                            }
+                        }
                     } else {
-                        showToast('Gagal memperbarui data', 'danger');
+                        // Show error message
+                        showToast(response.message || 'Gagal menyimpan data', 'danger');
+                        
+                        // Re-enable the save button
+                        $btn.prop('disabled', false).html('<i class="fas fa-check"></i> Simpan');
                     }
                 },
                 error: function() {
