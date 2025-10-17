@@ -9,12 +9,6 @@
         </a>
     </div>
 
-    @if(session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-    @endif
-
     @if(!isset($penerimaanSk))
     <div class="alert alert-danger">
         Data penerimaan SK tidak ditemukan.

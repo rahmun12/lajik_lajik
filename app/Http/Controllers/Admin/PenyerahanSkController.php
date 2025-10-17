@@ -125,8 +125,11 @@ class PenyerahanSkController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.penyerahan-sk.index')
+            // Redirect ke halaman index dengan pesan sukses
+            return redirect()
+                ->route('admin.penyerahan-sk.index')
                 ->with('success', 'Data penyerahan SK berhasil disimpan');
+                
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -135,8 +138,10 @@ class PenyerahanSkController extends Controller
                 error_log($e->getTraceAsString());
             }
 
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan saat menyimpan data: ' .
+            // Kembali ke halaman sebelumnya dengan pesan error
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menyimpan data. ' . 
                     (app()->environment('local') ? $e->getMessage() : 'Silakan coba lagi'))
                 ->withInput();
         }
