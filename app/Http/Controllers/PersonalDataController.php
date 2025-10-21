@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\IzinPengajuan;
-use Illuminate\Support\Facades\Log;
 use App\Models\PersonalData;
 use App\Models\JenisIzin;
 use App\Models\FieldVerification;
@@ -13,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Services\TelegramService;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class PersonalDataController extends Controller
 {
@@ -24,44 +26,51 @@ class PersonalDataController extends Controller
 
     public function store(Request $request)
     {
-        // Start database transaction
-        DB::beginTransaction();
-        
-        try {
-            // Validation rules
-            $validated = $request->validate([
-                'nama' => 'required|string|max:255',
-                'alamat_jalan' => 'required|string|max:255',
-                'rt' => 'nullable|string|max:10',
-                'rw' => 'nullable|string|max:10',
-                'kabupaten_kota' => 'required|string|max:100',
-                'kecamatan' => 'required|string|max:100',
-                'kelurahan' => 'required|string|max:100',
-                'kode_pos' => 'nullable|string|max:5',
-                'no_telp' => 'nullable|string|max:20',
-                'no_ktp' => 'nullable|string|size:16',
-                'no_kk' => 'nullable|string|size:16',
-                'jenis_izin' => 'required|exists:jenis_izins,id',
-                'foto_ktp' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-                'foto_kk' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-                'pendukung' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-                
-            ], [
-                'kode_pos.max' => 'Kode pos maksimal 5 karakter',
-                'no_ktp.size' => 'Nomor KTP harus 16 digit',
-                'no_kk.size' => 'Nomor KK harus 16 digit',
-                'foto_ktp.required' => 'Foto KTP wajib diunggah',
-                'foto_kk.required' => 'Foto KK wajib diunggah',
-                'foto_ktp.mimes' => 'Format file harus JPG, JPEG, atau PNG',
-                'foto_kk.mimes' => 'Format file harus JPG, JPEG, atau PNG',
-                'foto_ktp.max' => 'Ukuran file maksimal 2MB',
-                'foto_kk.max' => 'Ukuran file maksimal 2MB',
-                'pendukung.max' => 'Ukuran file maksimal 2MB',
-            ]);
+        // 1) VALIDASI terlebih dahulu (agar tidak membuka transaksi lalu gagal karena validasi)
+        $rules = [
+            'nama' => 'required|string|max:255',
+            'alamat_jalan' => 'required|string|max:255',
+            'rt' => 'nullable|string|max:10',
+            'rw' => 'nullable|string|max:10',
+            'kabupaten_kota' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'kelurahan' => 'required|string|max:100',
+            'kode_pos' => 'nullable|string|max:5',
+            'no_telp' => 'nullable|string|max:20',
+            'no_ktp' => 'nullable|string|size:16',
+            'no_kk' => 'nullable|string|size:16',
+            'jenis_izin' => 'required|exists:jenis_izins,id',
+            'foto_ktp' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'foto_kk' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'pendukung' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+        ];
 
-            // Check if user is authenticated
+        $messages = [
+            'kode_pos.max' => 'Kode pos maksimal 5 karakter',
+            'no_ktp.size' => 'Nomor KTP harus 16 digit',
+            'no_kk.size' => 'Nomor KK harus 16 digit',
+            'foto_ktp.required' => 'Foto KTP wajib diunggah',
+            'foto_kk.required' => 'Foto KK wajib diunggah',
+            'foto_ktp.mimes' => 'Format file harus JPG, JPEG, atau PNG',
+            'foto_kk.mimes' => 'Format file harus JPG, JPEG, atau PNG',
+            'foto_ktp.max' => 'Ukuran file maksimal 2MB',
+            'foto_kk.max' => 'Ukuran file maksimal 2MB',
+            'pendukung.max' => 'Ukuran file maksimal 2MB',
+        ];
+
+        try {
+            $validated = $request->validate($rules, $messages);
+        } catch (ValidationException $ve) {
+            // biarkan laravel meng-handle redirect dengan errors + old input
+            throw $ve;
+        }
+
+        // 2) Mulai transaksi DB setelah validasi berhasil
+        DB::beginTransaction();
+
+        try {
+            // jika belum auth -> buat guest (firstOrCreate untuk mencegah duplikasi)
             if (!Auth::check()) {
-                // If not authenticated, create a guest user
                 $user = \App\Models\User::firstOrCreate(
                     ['email' => 'guest@example.com'],
                     [
@@ -70,90 +79,113 @@ class PersonalDataController extends Controller
                         'role' => 'guest'
                     ]
                 );
-                
-                // Log in the user
+
                 Auth::login($user);
             }
 
-            // Handle file uploads
-            $ktpPath = 'ktp_photos/' . date('Y/m/d');
-            $kkPath = 'kk_photos/' . date('Y/m/d');
-            
-            // Upload KTP
+            // 3) Handle file uploads dengan Storage (disk 'public')
             $fotoKtpPath = null;
+            $fotoKkPath = null;
+
             if ($request->hasFile('foto_ktp')) {
+                $ktpPath = 'ktp_photos/' . date('Y/m/d');
                 $fotoKtpPath = $request->file('foto_ktp')->store($ktpPath, 'public');
             }
-            
-            // Upload KK
-            $fotoKkPath = null;
+
             if ($request->hasFile('foto_kk')) {
+                $kkPath = 'kk_photos/' . date('Y/m/d');
                 $fotoKkPath = $request->file('foto_kk')->store($kkPath, 'public');
             }
-            
-            // Save personal data
+
+            // optional 'pendukung'
+            $pendukungPath = null;
+            if ($request->hasFile('pendukung')) {
+                $pendukungPath = $request->file('pendukung')->store('pendukung_photos/' . date('Y/m/d'), 'public');
+            }
+
+            // 4) Simpan personal data
             $data = $request->only([
-                'nama', 'alamat_jalan', 'rt', 'rw', 
+                'nama', 'alamat_jalan', 'rt', 'rw',
                 'kabupaten_kota', 'kecamatan', 'kelurahan', 'kode_pos',
                 'no_telp', 'no_ktp', 'no_kk'
             ]);
-            
+
             $data['user_id'] = Auth::id();
             $data['foto_ktp'] = $fotoKtpPath;
             $data['foto_kk'] = $fotoKkPath;
-            
-            // Create personal data
+            if ($pendukungPath) $data['pendukung'] = $pendukungPath;
+
             $personalData = PersonalData::create($data);
-            
-            // Create izin pengajuan
-            IzinPengajuan::create([
+
+            // 5) Buat record pengajuan izin
+            $izin = IzinPengajuan::create([
                 'user_id' => $data['user_id'],
                 'personal_data_id' => $personalData->id,
                 'jenis_izin_id' => $request->jenis_izin,
                 'status' => 'pending'
             ]);
-            
-            // Commit the transaction
+
+            // Commit transaksi
             DB::commit();
 
-            // Send Telegram notification
+            // 6) Kirim notifikasi Telegram setelah commit
             try {
                 $telegramService = new TelegramService();
                 $wibTime = Carbon::now('Asia/Jakarta');
+                $jenisIzin = JenisIzin::find($request->jenis_izin);
+
                 $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
-                          "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
-                          "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
-                          "👤 Nama: " . $personalData->nama . "\n" .
-                          "🏠 Alamat: " . $personalData->alamat_jalan . 
-                          (($personalData->rt || $personalData->rw) ? 
-                              " RT " . $personalData->rt . 
-                              "/RW " . $personalData->rw . "\n" : "\n") .
-                          "📋 Jenis Izin: " . JenisIzin::find($request->jenis_izin)->nama_izin . "\n\n" .
-                          "Segera lakukan verifikasi data pengajuan ini.";
+                    "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
+                    "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
+                    "👤 Nama: " . $personalData->nama . "\n" .
+                    "🏠 Alamat: " . $personalData->alamat_jalan .
+                    (($personalData->rt || $personalData->rw) ?
+                        " RT " . $personalData->rt .
+                        "/RW " . $personalData->rw . "\n" : "\n") .
+                    "📋 Jenis Izin: " . ($jenisIzin ? $jenisIzin->nama_izin : '-') . "\n\n" .
+                    "Segera lakukan verifikasi data pengajuan ini.";
 
                 $telegramService->sendNotification($message);
             } catch (\Exception $e) {
-                // Log error but don't fail the request
-                \Illuminate\Support\Facades\Log::error('Failed to send Telegram notification: ' . $e->getMessage());
+                Log::error('Failed to send Telegram notification: ' . $e->getMessage());
             }
 
-            // Get the jenis izin name for the success message
-            $jenisIzin = JenisIzin::find($request->jenis_izin);
-            
-            // Always redirect back to the form page with success message (removed admin check)
-            return redirect()->back()
-                ->with([
-                    'success' => 'Terima kasih, ' . $request->nama . '!',
-                    'message' => 'Pengajuan izin ' . ($jenisIzin ? $jenisIzin->nama_izin : '') . ' Anda berhasil dikirim. Kami akan segera memproses permohonan Anda. Nomor pengajuan Anda adalah #' . $personalData->id . '.'
-                ]);
-            
+            // 7) Redirect sukses (mengikuti alert blade yang sudah ada)
+            $jenisIzinName = $jenisIzin ? $jenisIzin->nama_izin : '';
+            return redirect()->back()->with([
+                'success' => 'Terima kasih, ' . $personalData->nama . '!',
+                'message' => 'Pengajuan izin ' . $jenisIzinName . ' Anda berhasil dikirim. Kami akan segera memproses permohonan Anda. Nomor pengajuan Anda adalah #' . $personalData->id . '.'
+            ]);
         } catch (\Exception $e) {
-            // Rollback the transaction on error
-            // DB::rollBack();
-            
+            // rollback kalau ada error
+            DB::rollBack();
+
+            // jika file sudah tersimpan, kita tidak otomatis hapus semuanya di sini
+            // (opsional: hapus file hasil upload untuk menjaga konsistensi)
+            try {
+                if (!empty($fotoKtpPath) && Storage::disk('public')->exists($fotoKtpPath)) {
+                    Storage::disk('public')->delete($fotoKtpPath);
+                }
+                if (!empty($fotoKkPath) && Storage::disk('public')->exists($fotoKkPath)) {
+                    Storage::disk('public')->delete($fotoKkPath);
+                }
+                if (!empty($pendukungPath) && Storage::disk('public')->exists($pendukungPath)) {
+                    Storage::disk('public')->delete($pendukungPath);
+                }
+            } catch (\Exception $inner) {
+                Log::warning('Failed to cleanup uploaded files after error: ' . $inner->getMessage());
+            }
+
+            // Log error detail untuk debugging
+            Log::error('Error storing personal data: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Redirect kembali dengan pesan error yang ramah user
             return redirect()->back()
                 ->withInput()
-                ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+                ->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.')
+                ->with('message', config('app.debug') ? $e->getMessage() : null);
         }
     }
 
@@ -163,37 +195,29 @@ class PersonalDataController extends Controller
     public function penyesuaianData()
     {
         try {
-            // Get all personal data with their related data
             $data = PersonalData::with([
-                'izinPengajuan' => function($query) {
-                    $query->withTrashed()
-                          ->with(['jenisIzin' => function($q) {
-                              $q->withTrashed();
-                          }]);
+                'izinPengajuan' => function ($query) {
+                    // bila model IzinPengajuan memakai SoftDeletes, withTrashed() bisa dipakai di relation
+                    $query->withTrashed()->with('jenisIzin');
                 },
                 'fieldVerifications',
                 'penerimaanSk',
                 'serahTerima'
-            ])
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-            // Debug: Log the first item's data
+            ])->orderBy('created_at', 'desc')->get();
+
             if ($data->isNotEmpty()) {
                 Log::info('First personal data item:', [
                     'id' => $data->first()->id,
-                    'izin_pengajuan_count' => $data->first()->izinPengajuan ? $data->first()->izinPengajuan->count() : 0,
+                    'izin_pengajuan_count' => optional($data->first()->izinPengajuan)->count() ?? 0,
                     'has_penerimaan_sk' => $data->first()->penerimaanSk ? 'yes' : 'no',
                     'has_serah_terima' => $data->first()->serahTerima ? 'yes' : 'no'
                 ]);
             }
-            
+
             return view('penyesuaian_data', compact('data'));
-            
         } catch (\Exception $e) {
-            Log::error('Error in penyesuaianData: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            Log::error('Error in penyesuaianData: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return back()->with('error', 'Terjadi kesalahan: ' . ($e->getMessage()));
         }
     }
 
@@ -272,22 +296,27 @@ class PersonalDataController extends Controller
             'selfie' => 'foto_selfie_ktp'
         ];
 
-        // Handle file upload
-        if ($request->hasFile('document')) {
-            // Delete old file if exists
-            $oldFile = $personalData->{$fieldMap[$request->doc_type]};
-            if ($oldFile && file_exists(storage_path('app/public/' . $oldFile))) {
-                unlink(storage_path('app/public/' . $oldFile));
+        if (!$request->hasFile('document')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak ada file yang diunggah'
+            ], 400);
+        }
+
+        try {
+            // Hapus file lama jika ada
+            $oldFile = $personalData->{$fieldMap[$request->doc_type]} ?? null;
+            if ($oldFile && Storage::disk('public')->exists($oldFile)) {
+                Storage::disk('public')->delete($oldFile);
             }
 
-            // Store new file
-            $path = $request->file('document')->store('documents', 'public');
-            
-            // Update personal data with new file path
+            // Simpan file baru
+            $path = $request->file('document')->store('documents/' . date('Y/m/d'), 'public');
+
+            // Update personal data dan field verification
             $personalData->{$fieldMap[$request->doc_type]} = $path;
             $personalData->save();
 
-            // Update or create field verification
             FieldVerification::updateOrCreate(
                 [
                     'personal_data_id' => $personalData->id,
@@ -310,12 +339,14 @@ class PersonalDataController extends Controller
                     'document_url' => asset('storage/' . $path)
                 ]
             ]);
+        } catch (\Exception $e) {
+            Log::error('uploadDocument error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupload dokumen',
+                'detail' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal mengupload dokumen'
-        ], 400);
     }
 
     /**

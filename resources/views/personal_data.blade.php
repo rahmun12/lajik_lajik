@@ -3,8 +3,13 @@
 @push('styles')
 <style>
     @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+        0% {
+            transform: translateX(-100%);
+        }
+
+        100% {
+            transform: translateX(100%);
+        }
     }
 
     .animate-pulse {
@@ -141,8 +146,8 @@
         {{-- Alert sukses --}}
         @if (session('success'))
         <div class="alert alert-success border-0 shadow-lg rounded-4 mb-4 position-relative overflow-hidden"
-             style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color:#155724; border-left: 5px solid #28a745;"
-             role="alert">
+            style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color:#155724; border-left: 5px solid #28a745;"
+            role="alert">
             <div class="d-flex align-items-center">
                 <div class="flex-shrink-0 me-3">
                     <svg class="w-6 h-6 text-success animate-pulse" fill="currentColor" viewBox="0 0 20 20">
@@ -157,20 +162,51 @@
                     @if (session('message'))
                     <small class="text-muted">{{ session('message') }}</small>
                     @endif
+                    {{-- Alert gagal (error sistem) --}}
+                    @if (session('error'))
+                    <div class="alert alert-danger border-0 shadow-lg rounded-4 mb-4 position-relative overflow-hidden"
+                        style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color:#721c24; border-left: 5px solid #dc3545;"
+                        role="alert">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0 me-3">
+                                <svg class="w-6 h-6 text-danger animate-bounce" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-8 4a1 1 0 100-2 1 1 0 000 2zm0-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="alert-heading fw-bold mb-1">
+                                    <i class="fas fa-times-circle me-2"></i>Gagal!
+                                </h6>
+                                <p class="mb-0 fs-6 fw-medium">{{ session('error') }}</p>
+
+                                @if (session('message'))
+                                <small class="text-muted">Detail: {{ session('message') }}</small>
+                                @endif
+                            </div>
+                            <button type="button" class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
+                                data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
+                            style="background: linear-gradient(45deg, transparent 30%, rgba(220, 53, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
+                    </div>
+                    @endif
+
                 </div>
                 <button type="button" class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
-                        data-bs-dismiss="alert" aria-label="Close"></button>
+                    data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
-                 style="background: linear-gradient(45deg, transparent 30%, rgba(40, 167, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
+                style="background: linear-gradient(45deg, transparent 30%, rgba(40, 167, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
         </div>
         @endif
 
         {{-- Error handling --}}
         @if ($errors->any())
         <div class="alert alert-danger border-0 shadow-lg rounded-4 mb-4 position-relative overflow-hidden"
-             style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color:#721c24; border-left: 5px solid #dc3545;"
-             role="alert">
+            style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color:#721c24; border-left: 5px solid #dc3545;"
+            role="alert">
             <div class="d-flex align-items-start">
                 <div class="flex-shrink-0 me-3">
                     <svg class="w-6 h-6 text-danger animate-bounce" fill="currentColor" viewBox="0 0 20 20">
@@ -189,10 +225,10 @@
                     <small class="text-muted">Mohon periksa kembali form Anda dan pastikan semua field yang wajib diisi telah terisi dengan benar.</small>
                 </div>
                 <button type="button" class="btn-close position-absolute top-50 end-0 translate-middle-y me-3"
-                        data-bs-dismiss="alert" aria-label="Close"></button>
+                    data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
-                 style="background: linear-gradient(45deg, transparent 30%, rgba(220, 53, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
+                style="background: linear-gradient(45deg, transparent 30%, rgba(220, 53, 69, 0.1) 50%, transparent 70%); animation: shimmer 2s ease-in-out infinite alternate;"></div>
         </div>
         @endif
 
