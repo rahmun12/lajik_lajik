@@ -67,28 +67,41 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="petugas_menyerahkan" class="form-label">Petugas yang Menyerahkan</label>
+                    <div class="col-md-4">
+                        <label for="petugas_mengambil" class="form-label">Petugas Mengambil Berkas <span class="text-danger">*</span></label>
+                        <input type="text"
+                            id="petugas_mengambil"
+                            name="petugas_mengambil"
+                            class="form-control @error('petugas_mengambil') is-invalid @enderror"
+                            value="{{ old('petugas_mengambil') }}"
+                            required>
+                        @error('petugas_mengambil')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label for="petugas_menyerahkan" class="form-label">Petugas Menyerahkan <span class="text-danger">*</span></label>
                         <input type="text"
                             id="petugas_menyerahkan"
-                            class="form-control"
                             name="petugas_menyerahkan"
+                            class="form-control @error('petugas_menyerahkan') is-invalid @enderror"
                             value="{{ old('petugas_menyerahkan') }}"
-                            required
-                            oninvalid="this.setCustomValidity('Mohon isi nama petugas yang menyerahkan')"
-                            oninput="this.setCustomValidity('')"
-                            placeholder="Masukkan nama petugas">
+                            required>
+                        @error('petugas_menyerahkan')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-                    <div class="col-md-6">
-                        <label for="pemohon_menerima" class="form-label">Nama Penerima</label>
+                    <div class="col-md-4">
+                        <label for="pemohon_menerima" class="form-label">Pemohon Menerima <span class="text-danger">*</span></label>
                         <input type="text"
                             id="pemohon_menerima"
-                            class="form-control"
                             name="pemohon_menerima"
-                            value="{{ old('pemohon_menerima', $penerimaanSk->personalData->nama) }}"
-                            required
-                            oninvalid="this.setCustomValidity('Mohon isi nama penerima')"
-                            oninput="this.setCustomValidity('')">
+                            class="form-control @error('pemohon_menerima') is-invalid @enderror"
+                            value="{{ old('pemohon_menerima') }}"
+                            required>
+                        @error('pemohon_menerima')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
 

@@ -11,123 +11,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @stack('styles')
     <style>
-    :root {
-        --text: #1a1a1a;
-        --bg: #ffffff; /* ubah main bg jadi putih */
-        --primary: #d1d5db; /* sidebar bg lebih terang */
-        --secondary: #ffffff;
-        --accent: #9ca3af; /* hover */
-        --border: #6b7280; /* garis */
-    }
-
-    body {
-        background-color: var(--bg);
-        color: var(--text);
-    }
-
-    /* Sidebar */
-    .sidebar {
-        background-color: var(--primary);
-        min-height: 100vh;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-        padding-top: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar .text-center h4 {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        margin-bottom: 1rem;
-        color: var(--text);
-    }
-
-    .nav-link {
-        border-radius: 8px;
-        margin: 6px 10px;
-        padding: 12px 16px;
-        color: var(--text) !important;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .nav-link:hover {
-        background-color: var(--accent);
-        color: var(--text) !important;
-    }
-
-    .nav-link.active {
-        font-weight: 600;
-        background-color: var(--secondary);
-        color: var(--text) !important;
-        box-shadow: inset 3px 0 0 #a6a6a6;
-    }
-
-    .sidebar-sticky {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow-x: hidden;
-        overflow-y: auto;
-        padding-bottom: 1rem;
-    }
-
-    /* Scrollbar sidebar */
-    .sidebar-sticky::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    .sidebar-sticky::-webkit-scrollbar-thumb {
-        background-color: var(--accent);
-        border-radius: 3px;
-    }
-
-    .sidebar-sticky::-webkit-scrollbar-track {
-        background-color: transparent;
-    }
-
-    /* Alerts */
-    .alert-success {
-        background-color: var(--primary);
-        color: var(--text);
-        border-color: var(--border);
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #842029;
-        border-color: #f5c2c7;
-    }
-
-    .btn-close {
-        filter: brightness(0.5);
-    }
-
-    main {
-        background-color: var(--bg);
-        transition: margin-left 0.3s ease;
-    }
-
-    /* Responsive: collapse sidebar */
-    @media (max-width: 768px) {
-        .sidebar {
-            position: fixed;
-            z-index: 1050;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
+        :root {
+            --text: #1a1a1a;
+            --bg: #ffffff;
+            /* ubah main bg jadi putih */
+            --primary: #d1d5db;
+            /* sidebar bg lebih terang */
+            --secondary: #ffffff;
+            --accent: #9ca3af;
+            /* hover */
+            --border: #6b7280;
+            /* garis */
         }
 
-        .sidebar.show {
-            transform: translateX(0);
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--primary);
+            min-height: 100vh;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            padding-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .text-center h4 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .nav-link {
+            border-radius: 8px;
+            margin: 6px 10px;
+            padding: 12px 16px;
+            color: var(--text) !important;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--accent);
+            color: var(--text) !important;
+        }
+
+        .nav-link.active {
+            font-weight: 600;
+            background-color: var(--secondary);
+            color: var(--text) !important;
+            box-shadow: inset 3px 0 0 #a6a6a6;
+        }
+
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding-bottom: 1rem;
+        }
+
+        /* Scrollbar sidebar */
+        .sidebar-sticky::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-sticky::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 3px;
+        }
+
+        .sidebar-sticky::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        /* Alerts */
+        .alert-success {
+            background-color: var(--primary);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #842029;
+            border-color: #f5c2c7;
+        }
+
+        .btn-close {
+            filter: brightness(0.5);
         }
 
         main {
-            margin-left: 0 !important;
+            background-color: var(--bg);
+            transition: margin-left 0.3s ease;
         }
-    }
-</style>
+
+        /* Responsive: collapse sidebar */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 1050;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            main {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
 
 </head>
 
@@ -165,7 +169,19 @@
                         <a class="nav-link {{ request()->is('admin/penyerahan-sk*') ? 'active' : '' }}"
                             href="{{ route('admin.penyerahan-sk.index') }}">
                             <i class="fas fa-file-import me-2"></i>
-                            Penyerahan SK
+                            Rekapitulasi Penyerahan Perizinan Layanan Khusus (LAJIK)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('admin/rekapitulasi-penerimaan*') ? 'active' : '' }}"
+                            href="{{ route('admin.rekapitulasi-penerimaan.index') }}">
+                            <i class="fas fa-clipboard-list me-2"></i> Rekapitulasi Penerimaan
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('admin/rekapitulasi-penyerahan*') ? 'active' : '' }}"
+                            href="{{ route('admin.rekapitulasi-penyerahan.index') }}">
+                            <i class="fas fa-clipboard-list me-2"></i> Rekapitulasi Penyerahan
                         </a>
                     </li>
                     <li class="nav-item mt-auto">

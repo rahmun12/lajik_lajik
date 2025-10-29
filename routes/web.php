@@ -104,6 +104,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         ->name('penyerahan-sk.upload-foto');
 });
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    // ... other routes
+    Route::resource('rekapitulasi-penerimaan', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenerimaanController')
+        ->only(['index']);
+    Route::get('rekapitulasi-penerimaan/export', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenerimaanController@exportExcel')
+        ->name('rekapitulasi-penerimaan.export');
+});
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    // ... other routes
+    Route::resource('rekapitulasi-penyerahan', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenyerahanController')
+        ->only(['index', 'exportExcel']);
+    Route::get('rekapitulasi-penyerahan/export', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenyerahanController@export')
+    ->name('rekapitulasi-penyerahan.export');
+});
+
 // File access route
 Route::get('/file/{filename}', 'App\Http\Controllers\FileController@show')
     ->name('file.show');

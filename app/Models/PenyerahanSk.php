@@ -18,6 +18,7 @@ class PenyerahanSk extends Model
         'no_sk_izin',
         'tanggal_terbit',
         'tanggal_penyerahan',
+        'petugas_mengambil',
         'petugas_menyerahkan',
         'pemohon_menerima',
         'foto_penyerahan',

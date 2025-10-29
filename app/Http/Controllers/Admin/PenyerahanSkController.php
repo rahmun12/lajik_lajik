@@ -92,6 +92,7 @@ class PenyerahanSkController extends Controller
             'no_sk_izin' => 'required|string|max:100',
             'tanggal_terbit' => 'required|date',
             'tanggal_penyerahan' => 'required|date',
+            'petugas_mengambil' => 'required|string|max:100',
             'petugas_menyerahkan' => 'required|string|max:100',
             'pemohon_menerima' => 'required|string|max:100',
             'foto_penyerahan' => 'required|image|mimes:jpeg,png,jpg|max:2048',
@@ -168,6 +169,7 @@ class PenyerahanSkController extends Controller
         $validated = $request->validate([
             'no_sk_izin' => 'required|string|max:100',
             'tanggal_terbit' => 'required|date',
+            'petugas_mengambil' => 'required|string|max:100',
             'petugas_menyerahkan' => 'required|string|max:100',
             'pemohon_menerima' => 'required|string|max:100',
             'foto_penyerahan' => 'nullable|image|max:2048',

@@ -2,7 +2,7 @@
 
 @section('admin-content')
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h3 mb-0 text-gray-800">Daftar Penyerahan SK Izin</h1>
+    <h1 class="h3 mb-0 text-gray-800"> Rekapitulasi Penyerahan Perizinan Layanan Khusus (LAJIK)</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="{{ route('admin.penyerahan-sk.export') }}" class="btn btn-success btn-sm ms-2">
             <i class="fas fa-file-excel"></i> Export Excel
@@ -20,12 +20,13 @@
                         <th width="50" class="text-center">No</th>
                         <th width="15%">Nama Pemohon</th>
                         <th width="15%">Jenis Izin</th>
-                        <th width="15%" class="text-center">No. SK Izin</th>
-                        <th width="12%" class="text-center">Tanggal Terbit</th>
-                        <th width="12%" class="text-center">Tanggal Penyerahan</th>
+                        <th width="12%" class="text-center">No. SK Izin</th>
+                        <th width="10%" class="text-center">Tanggal Terbit</th>
+                        <th width="10%" class="text-center">Tanggal Penyerahan</th>
+                        <th width="15%">Petugas Mengambil</th>
                         <th width="15%">Petugas Menyerahkan</th>
                         <th width="15%">Pemohon Menerima</th>
-                        <th width="10%" class="text-center">Foto</th>
+                        <th width="8%" class="text-center">Foto</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +44,7 @@
                                 -
                             @endif
                         </td>
+                        <td>{{ $item->petugas_mengambil ?? '-' }}</td>
                         <td>{{ $item->petugas_menyerahkan }}</td>
                         <td>{{ $item->pemohon_menerima }}</td>
                         <td class="text-center">
