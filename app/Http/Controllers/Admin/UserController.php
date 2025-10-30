@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\PersonalData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -115,16 +117,40 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $this->authorize('delete', $user);
-        // Fix lint error by ensuring $user is properly typed
         
         // Prevent deleting yourself
         if ($user->id === Auth::id()) {
-            return back()->with('error', 'You cannot delete your own account.');
+            return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
         }
 
-        $user->delete();
+        // Cek apakah user adalah admin_inti
+        if ($user->role === 'admin_inti') {
+            return back()->with('error', 'Tidak dapat menghapus akun admin inti.');
+        }
 
-        return redirect()->route('admin_inti.users.index')
-                        ->with('success', 'User deleted successfully');
+        // Cek apakah user sudah memverifikasi data
+        if (PersonalData::where('verified_by', $user->id)->exists()) {
+            return back()->with('error', 'Tidak dapat menghapus user karena sudah melakukan verifikasi data.');
+        }
+
+        // Mulai transaction
+        DB::beginTransaction();
+        
+        try {
+            // Hapus data terkait yang memiliki foreign key ke user
+            // Tambahkan relasi lain yang mungkin ada di sini
+            
+            // Hapus user
+            $user->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('admin_inti.users.index')
+                            ->with('success', 'User berhasil dihapus');
+                            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
     }
 }
