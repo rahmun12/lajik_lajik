@@ -15,12 +15,15 @@ class PenerimaanSk extends Model
         'personal_data_id',
         'no_sk_izin',
         'tanggal_terbit',
+        'tanggal_penerimaan',
+        'alamat_penerimaan',
         'petugas_menyerahkan',
         'petugas_menerima'
     ];
 
     protected $dates = [
         'tanggal_terbit',
+        'tanggal_penerimaan',
         'created_at',
         'updated_at',
         'deleted_at'
@@ -28,6 +31,7 @@ class PenerimaanSk extends Model
 
     protected $casts = [
         'tanggal_terbit' => 'date',
+        'tanggal_penerimaan' => 'date',
     ];
 
     /**

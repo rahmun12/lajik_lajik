@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             JenisIzinSeeder::class,
             PenerimaanSkSeeder::class,
+            AdminIntiUserSeeder::class,
             // ProvinceSeeder::class, // Uncomment if needed
         ]);
 

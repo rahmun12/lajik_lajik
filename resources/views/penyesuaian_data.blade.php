@@ -269,59 +269,77 @@
 
         /* Address stacked layout (scoped) */
         .address-stack {
-            max-width: 520px; /* avoid pushing table too wide */
+            max-width: 520px;
+            /* avoid pushing table too wide */
         }
-        .address-stack > * {
+
+        .address-stack>* {
             line-height: 1.25;
         }
+
         .address-stack label {
             white-space: normal;
             word-break: break-word;
         }
+
         @media (max-width: 992px) {
-            .address-stack { max-width: 100%; }
+            .address-stack {
+                max-width: 100%;
+            }
         }
 
         /* Neat borders for verification table (scoped) */
         #verificationTable {
             border-collapse: separate;
             border-spacing: 0;
-            width: 100%; /* fill container width only */
+            width: 100%;
+            /* fill container width only */
             max-width: 100%;
-            font-size: 0.95rem; /* slightly compact text for clean look */
+            font-size: 0.95rem;
+            /* slightly compact text for clean look */
         }
+
         #verificationTable thead th,
         #verificationTable tbody td {
-            border-right: 1px solid rgba(0,0,0,0.06); /* softer borders */
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+            border-right: 1px solid rgba(0, 0, 0, 0.06);
+            /* softer borders */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
         }
+
         #verificationTable thead th {
-            border-bottom: 2px solid rgba(0,0,0,0.08); /* slightly stronger header divider */
+            border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+            /* slightly stronger header divider */
         }
+
         #verificationTable tr th:first-child,
         #verificationTable tr td:first-child {
-            border-left: 1px solid rgba(0,0,0,0.06);
+            border-left: 1px solid rgba(0, 0, 0, 0.06);
         }
+
         /* Optional subtle outer border via first header row */
         #verificationTable thead tr:first-child th {
-            border-top: 1px solid rgba(0,0,0,0.06);
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
 
         /* Subtle zebra and hover for cleanliness */
         #verificationTable tbody tr:nth-of-type(odd) {
             background-color: #fafafa;
         }
+
         #verificationTable tbody tr:hover {
             background-color: #f5f5f5;
         }
 
         /* Reallocate width: balance Name and Address */
         #verificationTable th:nth-child(1),
-        #verificationTable td:nth-child(1) { /* Nama */
+        #verificationTable td:nth-child(1) {
+            /* Nama */
             width: 16%;
         }
+
         #verificationTable th:nth-child(4),
-        #verificationTable td:nth-child(4) { /* Alamat */
+        #verificationTable td:nth-child(4) {
+            /* Alamat */
             width: 38%;
         }
 
@@ -337,18 +355,25 @@
         /* Slightly larger spacing for tables on this page (scoped) */
         .card .table th,
         .card .table td {
-            padding: 1.15rem 1.05rem; /* a bit wider horizontally */
+            padding: 1.15rem 1.05rem;
+            /* a bit wider horizontally */
         }
+
         /* Modal detail tables */
         .modal .table th,
         .modal .table td {
-            padding: 1.05rem 1.0rem; /* a bit wider horizontally */
+            padding: 1.05rem 1.0rem;
+            /* a bit wider horizontally */
         }
+
         @media (max-width: 992px) {
+
             .card .table th,
             .card .table td {
-                padding: 1.05rem 0.55rem; /* keep height, trim width further on small screens */
+                padding: 1.05rem 0.55rem;
+                /* keep height, trim width further on small screens */
             }
+
             .modal .table th,
             .modal .table td {
                 padding: 0.95rem 0.50rem;
@@ -368,6 +393,7 @@
         #verificationTable .btn-group .btn {
             margin-right: 6px;
         }
+
         #verificationTable .btn-group .btn:last-child {
             margin-right: 0;
         }
@@ -378,56 +404,102 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 0.5rem; /* normal spacing */
-            font-size: 0.95rem; /* normal size */
-            white-space: nowrap; /* keep in one line */
+            margin-bottom: 0.5rem;
+            /* normal spacing */
+            font-size: 0.95rem;
+            /* normal size */
+            white-space: nowrap;
+            /* keep in one line */
         }
+
         #verificationTable_wrapper .dataTables_length select {
             border: 1px solid #e5e7eb;
             border-radius: 10px;
-            padding: 0.45rem 0.75rem; /* normal touch target */
-            padding-right: 2rem; /* give space for native arrow */
+            padding: 0.45rem 0.75rem;
+            /* normal touch target */
+            padding-right: 2rem;
+            /* give space for native arrow */
             background-color: #fff;
             font-size: 0.95rem;
             width: auto;
             min-width: 90px;
-            max-width: 140px; /* avoid stretching but prevent crowding */
+            max-width: 140px;
+            /* avoid stretching but prevent crowding */
             vertical-align: middle;
-            background-position: right 0.6rem center; /* for browsers that render bg icon */
+            background-position: right 0.6rem center;
+            /* for browsers that render bg icon */
             background-repeat: no-repeat;
         }
+
         #verificationTable_wrapper .dataTables_filter input {
             border: 1px solid #e5e7eb;
             border-radius: 10px;
-            padding: 0.5rem 0.75rem; /* normal */
-            padding-left: 2rem; /* space for inside icon */
+            padding: 0.5rem 0.75rem;
+            /* normal */
+            padding-left: 2rem;
+            /* space for inside icon */
             background-color: #fff;
             min-width: 220px;
-            max-width: 240px; /* prevent wrapping and keep in one row */
+            max-width: 240px;
+            /* prevent wrapping and keep in one row */
             font-size: 0.95rem;
         }
 
         /* Full-width table container */
-        .card .table-responsive { max-width: none; width: 100%; margin: 0; overflow-x: auto; }
-        #verificationTable_wrapper { max-width: none; width: 100%; margin: 0; padding: 0.25rem 0; }
+        .card .table-responsive {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        #verificationTable_wrapper {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding: 0.25rem 0;
+        }
 
         /* Top controls: length (left) + search (right) on the same line */
         #verificationTable_wrapper .row:first-child {
             display: flex !important;
-            flex-wrap: nowrap !important; /* keep in one row on wide screens */
+            flex-wrap: nowrap !important;
+            /* keep in one row on wide screens */
             align-items: center !important;
-            justify-content: space-between !important; /* push to edges */
+            justify-content: space-between !important;
+            /* push to edges */
             gap: 8px;
             width: 100%;
         }
+
         /* Override Bootstrap grid widths */
-        #verificationTable_wrapper .row:first-child > div { flex: 0 0 auto !important; width: auto !important; max-width: none !important; }
-        #verificationTable_wrapper .dataTables_length { order: 1; }
-        #verificationTable_wrapper .dataTables_filter { order: 2; margin-left: auto !important; display: flex !important; align-items: center; }
-        #verificationTable_wrapper .dataTables_filter label { display: inline-flex; align-items: center; }
+        #verificationTable_wrapper .row:first-child>div {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            max-width: none !important;
+        }
+
+        #verificationTable_wrapper .dataTables_length {
+            order: 1;
+        }
+
+        #verificationTable_wrapper .dataTables_filter {
+            order: 2;
+            margin-left: auto !important;
+            display: flex !important;
+            align-items: center;
+        }
+
+        #verificationTable_wrapper .dataTables_filter label {
+            display: inline-flex;
+            align-items: center;
+        }
+
         /* Keep labels on one line on wide screens */
         #verificationTable_wrapper .dataTables_length label,
-        #verificationTable_wrapper .dataTables_filter label { white-space: nowrap; }
+        #verificationTable_wrapper .dataTables_filter label {
+            white-space: nowrap;
+        }
 
         /* Bottom info and pagination aligned cleanly */
         #verificationTable_wrapper .row:last-child {
@@ -439,22 +511,49 @@
         }
 
         /* Ensure action buttons look consistent */
-        #verificationTable .btn-group .btn { padding: 0.4rem 0.6rem; }
+        #verificationTable .btn-group .btn {
+            padding: 0.4rem 0.6rem;
+        }
 
         /* Responsive stacking for small/medium screens */
         @media (max-width: 768px) {
-            #verificationTable_wrapper .row:first-child { gap: 6px; flex-wrap: wrap !important; }
+            #verificationTable_wrapper .row:first-child {
+                gap: 6px;
+                flex-wrap: wrap !important;
+            }
+
             #verificationTable_wrapper .dataTables_length,
-            #verificationTable_wrapper .dataTables_filter { flex: 1 1 100% !important; order: unset; margin-left: 0 !important; }
-            #verificationTable_wrapper .dataTables_filter label { width: 100%; }
-            #verificationTable_wrapper .dataTables_filter input { width: 100%; max-width: 100%; }
+            #verificationTable_wrapper .dataTables_filter {
+                flex: 1 1 100% !important;
+                order: unset;
+                margin-left: 0 !important;
+            }
+
+            #verificationTable_wrapper .dataTables_filter label {
+                width: 100%;
+            }
+
+            #verificationTable_wrapper .dataTables_filter input {
+                width: 100%;
+                max-width: 100%;
+            }
+
             #verificationTable_wrapper .dataTables_length label,
-            #verificationTable_wrapper .dataTables_filter label { white-space: normal; }
+            #verificationTable_wrapper .dataTables_filter label {
+                white-space: normal;
+            }
         }
+
         /* Search with icon placed inside the input */
-        #verificationTable_wrapper .dataTables_filter label { position: relative; display: inline-flex; align-items: center; }
+        #verificationTable_wrapper .dataTables_filter label {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
         #verificationTable_wrapper .dataTables_filter label:before {
-            content: "\f002"; /* fa-magnifying-glass */
+            content: "\f002";
+            /* fa-magnifying-glass */
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             color: #9ca3af;
@@ -465,20 +564,30 @@
             pointer-events: none;
             font-size: 0.9rem;
         }
-        #verificationTable_wrapper .dataTables_filter input { padding-left: 2rem; }
+
+        #verificationTable_wrapper .dataTables_filter input {
+            padding-left: 2rem;
+        }
+
         #verificationTable_wrapper .dataTables_length select:focus,
         #verificationTable_wrapper .dataTables_filter input:focus {
             outline: none;
             border-color: #d1d5db;
-            box-shadow: 0 0 0 0.15rem rgba(107,114,128,0.15);
+            box-shadow: 0 0 0 0.15rem rgba(107, 114, 128, 0.15);
         }
+
         /* Align controls responsively */
-        #verificationTable_wrapper .row:first-child { align-items: center; }
+        #verificationTable_wrapper .row:first-child {
+            align-items: center;
+        }
+
         #verificationTable_wrapper .dataTables_info {
-            color: #6b7280; /* gray-500 */
+            color: #6b7280;
+            /* gray-500 */
             font-size: 0.9rem;
             margin-top: 0.25rem;
         }
+
         #verificationTable_wrapper .dataTables_paginate .pagination {
             margin: 0.25rem 0 0;
         }
@@ -583,17 +692,21 @@
         $(document).ready(function() {
             // Initialize DataTable with sorting by created_at in descending order
             var table = $('#verificationTable').DataTable({
-                order: [[1, 'desc']], // Sort by second column (created_at) in descending order
+                order: [
+                    [1, 'desc']
+                ], // Sort by second column (created_at) in descending order
                 pageLength: 25, // Show 25 entries by default
                 stateSave: true, // Save table state (sorting, pagination, etc.)
-                columnDefs: [
-                    { 
+                columnDefs: [{
                         searchable: false,
                         orderable: false,
                         targets: 0,
                         className: 'dt-body-center'
                     },
-                    { targets: 1, type: 'date-eu' } // Properly sort date in DD/MM/YYYY format
+                    {
+                        targets: 1,
+                        type: 'date-eu'
+                    } // Properly sort date in DD/MM/YYYY format
                 ],
                 // Add row numbers that persist after sorting/filtering
                 createdRow: function(row, data, dataIndex) {
@@ -603,7 +716,10 @@
                 drawCallback: function() {
                     var api = this.api();
                     var startIndex = api.page.info().start;
-                    api.column(0, {search: 'applied', order: 'applied'}).nodes().each(function(cell, i) {
+                    api.column(0, {
+                        search: 'applied',
+                        order: 'applied'
+                    }).nodes().each(function(cell, i) {
                         cell.innerHTML = startIndex + i + 1;
                     });
                 },
@@ -619,7 +735,9 @@
                     $filter.find('input')
                         .attr('placeholder', 'Cari nama, alamat, jenis izin, status...');
                     // Remove the default text node (e.g., 'Cari:') inside label
-                    $filter.find('label').contents().filter(function() { return this.nodeType === 3; }).remove();
+                    $filter.find('label').contents().filter(function() {
+                        return this.nodeType === 3;
+                    }).remove();
                 },
                 order: [
                     [0, 'desc']
@@ -1130,9 +1248,9 @@
                 $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
 
                 // Determine the upload URL based on document type
-                const uploadUrl = docType === 'foto_berkas' 
-                    ? '/admin/serah-terima/upload-document' 
-                    : '/admin/personal-data/upload-document';
+                const uploadUrl = docType === 'foto_berkas' ?
+                    '/admin/serah-terima/upload-document' :
+                    '/admin/personal-data/upload-document';
 
                 // Upload file
                 $.ajax({
@@ -1147,10 +1265,10 @@
                             const previewContainer = $card.find('.document-preview-container');
                             if (previewContainer.length) {
                                 if (response.file_path) {
-                                    const imgSrc = response.file_path.startsWith('http') ? 
-                                        response.file_path : 
+                                    const imgSrc = response.file_path.startsWith('http') ?
+                                        response.file_path :
                                         `/storage/${response.file_path}`;
-                                    
+
                                     previewContainer.html(`
                                         <img src="${imgSrc}" 
                                              class="img-fluid img-thumbnail document-preview mb-2" 

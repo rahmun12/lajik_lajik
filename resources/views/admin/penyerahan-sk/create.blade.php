@@ -76,7 +76,7 @@
                             value="{{ old('petugas_mengambil') }}"
                             required>
                         @error('petugas_mengambil')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -88,7 +88,7 @@
                             value="{{ old('petugas_menyerahkan') }}"
                             required>
                         @error('petugas_menyerahkan')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-md-4">
@@ -100,7 +100,7 @@
                             value="{{ old('pemohon_menerima') }}"
                             required>
                         @error('pemohon_menerima')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>

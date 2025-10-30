@@ -4,10 +4,10 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h3 mb-0 text-gray-800">Rekapitulasi Penerimaan Permohonan Perizinan Layanan Khusus</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-       
-<a href="{{ route('admin.rekapitulasi-penerimaan.export') }}" class="btn btn-success btn-sm ms-2" id="exportExcel">
-    <i class="fas fa-file-excel"></i> Export Excel
-</a>
+
+        <a href="{{ route('admin.rekapitulasi-penerimaan.export') }}" class="btn btn-success btn-sm ms-2" id="exportExcel">
+            <i class="fas fa-file-excel"></i> Export Excel
+        </a>
     </div>
 </div>
 
@@ -22,7 +22,7 @@
                         <th>Nama Pemohon</th>
                         <th>Alamat</th>
                         <th>Jenis Izin</th>
-                        <th>Nama Petugas</th>
+                        <th>Petugas Pengambil</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -33,7 +33,7 @@
                         <td>{{ $item->nama_pemohon ?? 'N/A' }}</td>
                         <td>{{ $item->alamat ?? 'N/A' }}</td>
                         <td>{{ $item->jenis_izin ?? 'N/A' }}</td>
-                        <td>{{ $item->nama_petugas ?? 'N/A' }}</td>
+                        <td>{{ $item->petugas_mengambil ?? 'N/A' }}</td>
                     </tr>
                     @empty
                     <tr>

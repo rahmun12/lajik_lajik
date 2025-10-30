@@ -4,12 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Mime\MimeTypes;
 
-// Alias untuk Log facade
-use Log as LogFacade;
 
 class FileController extends Controller
 {
@@ -19,7 +18,7 @@ class FileController extends Controller
         $filename = basename($filename);
         
         // Log untuk debugging
-        LogFacade::info('Mencoba mengunduh file:', ['filename' => $filename]);
+        Log::info('Mencoba mengunduh file:', ['filename' => $filename]);
         
         // Cari file di semua subdirektori
         $directories = Storage::disk('public')->allDirectories();
@@ -45,7 +44,7 @@ class FileController extends Controller
 
         // Jika file masih tidak ditemukan
         if (!$filePath) {
-            LogFacade::error('File tidak ditemukan di storage:', ['filename' => $filename]);
+            Log::error('File tidak ditemukan di storage:', ['filename' => $filename]);
             
             // Coba cari file dengan nama yang mirip (case insensitive)
             $allFiles = Storage::disk('public')->allFiles();
@@ -59,7 +58,7 @@ class FileController extends Controller
             
             if ($foundFile) {
                 $filePath = $foundFile;
-                LogFacade::info('File ditemukan dengan case yang berbeda:', [
+                Log::info('File ditemukan dengan case yang berbeda:', [
                     'requested' => $filename,
                     'found' => $filePath
                 ]);
@@ -68,9 +67,14 @@ class FileController extends Controller
 
         // Jika file masih tidak ditemukan
         if (!$filePath) {
-                'filename' => $filename,
-                'directories_checked' => $directories
-            ]);
+            // Log the missing file
+            if (class_exists('\Log')) {
+                $directoriesToLog = isset($directories) ? $directories : [];
+                \Log::warning('File not found', [
+                    'filename' => $filename,
+                    'directories_checked' => $directoriesToLog
+                ]);
+            }
             
             // Kembalikan gambar placeholder
             $placeholder = public_path('images/image-not-found.jpg');
@@ -114,7 +118,7 @@ class FileController extends Controller
         // Periksa apakah file ada dan bisa dibaca
         $fullPath = Storage::disk('public')->path($filePath);
         if (!file_exists($fullPath) || !is_readable($fullPath)) {
-            LogFacade::error('File tidak dapat diakses:', [
+            Log::error('File tidak dapat diakses:', [
                 'path' => $filePath,
                 'exists' => file_exists($fullPath) ? 'Ya' : 'Tidak',
                 'readable' => is_readable($fullPath) ? 'Ya' : 'Tidak'
@@ -138,11 +142,11 @@ class FileController extends Controller
         }
 
         $file = Storage::disk('public')->path($filePath);
-        LogFacade::info('File ditemukan:', ['path' => $file]);
+        Log::info('File ditemukan:', ['path' => $file]);
 
         // Cek permission file
         if (!is_readable($file)) {
-            LogFacade::error('File tidak dapat dibaca:', ['path' => $file, 'permissions' => substr(sprintf('%o', fileperms($file)), -4)]);
+            Log::error('File tidak dapat dibaca:', ['path' => $file, 'permissions' => substr(sprintf('%o', fileperms($file)), -4)]);
             abort(403, 'Akses file ditolak');
         }
 

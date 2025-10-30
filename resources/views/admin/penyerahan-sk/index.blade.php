@@ -39,9 +39,9 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal_terbit)->format('d/m/Y') }}</td>
                         <td>
                             @if(!empty($item->tanggal_penyerahan))
-                                {{ \Carbon\Carbon::parse($item->tanggal_penyerahan)->format('d/m/Y') }}
+                            {{ \Carbon\Carbon::parse($item->tanggal_penyerahan)->format('d/m/Y') }}
                             @else
-                                -
+                            -
                             @endif
                         </td>
                         <td>{{ $item->petugas_mengambil ?? '-' }}</td>
@@ -49,11 +49,11 @@
                         <td>{{ $item->pemohon_menerima }}</td>
                         <td class="text-center">
                             @if($item->foto_penyerahan)
-                                <a href="{{ asset('storage/' . $item->foto_penyerahan) }}" target="_blank" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i> Lihat
-                                </a>
+                            <a href="{{ asset('storage/' . $item->foto_penyerahan) }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i> Lihat
+                            </a>
                             @else
-                                -
+                            -
                             @endif
                         </td>
                     </tr>

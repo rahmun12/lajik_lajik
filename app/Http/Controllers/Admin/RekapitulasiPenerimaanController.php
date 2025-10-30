@@ -47,7 +47,8 @@ class RekapitulasiPenerimaanController extends Controller
                     'nama_pemohon' => $item->personalData->nama ?? 'N/A',
                     'alamat' => $alamat_lengkap ?: 'N/A',
                     'jenis_izin' => $item->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'N/A',
-                    'nama_petugas' => $item->petugas_menyerahkan ?? 'N/A'
+                    'petugas_mengambil' => $item->petugas_mengambil ?? 'N/A',
+                    'petugas_menyerahkan' => $item->petugas_menyerahkan ?? 'N/A'
                 ];
             });
 

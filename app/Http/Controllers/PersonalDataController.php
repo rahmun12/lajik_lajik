@@ -105,9 +105,17 @@ class PersonalDataController extends Controller
 
             // 4) Simpan personal data
             $data = $request->only([
-                'nama', 'alamat_jalan', 'rt', 'rw',
-                'kabupaten_kota', 'kecamatan', 'kelurahan', 'kode_pos',
-                'no_telp', 'no_ktp', 'no_kk'
+                'nama',
+                'alamat_jalan',
+                'rt',
+                'rw',
+                'kabupaten_kota',
+                'kecamatan',
+                'kelurahan',
+                'kode_pos',
+                'no_telp',
+                'no_ktp',
+                'no_kk'
             ]);
 
             $data['user_id'] = Auth::id();

@@ -51,6 +51,15 @@ Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController
 Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
+// Admin Inti Routes (Protected by auth and CheckAdminInti middleware)
+Route::prefix('admin-inti')->name('admin_inti.')->middleware(['auth', \App\Http\Middleware\CheckAdminInti::class])->group(function () {
+    // User Management
+    Route::resource('users', 'App\Http\Controllers\Admin\UserController')
+        ->names('users');
+
+    // Add other admin-inti specific routes here
+});
+
 // Admin Routes (Protected by auth middleware)
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Existing admin routes
@@ -90,11 +99,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::put('penerimaan-sk/update-field/{id}', 'App\Http\Controllers\Admin\PenerimaanSkController@updateField')
         ->name('penerimaan-sk.update-field');
 
+    // Regular User Management
+    Route::resource('users/regular', 'App\Http\Controllers\Admin\RegularUserController')
+        ->names('users.regular')
+        ->except(['show']);
+
     // Penyerahan SK Routes
     // Export Penyerahan SK to Excel - must be defined before resource to avoid route conflict
     Route::get('penyerahan-sk/export', 'App\Http\Controllers\Admin\PenyerahanSkController@exportExcel')
         ->name('penyerahan-sk.export');
-        
+
     // Resource route for Penyerahan SK (exclude show method if not needed)
     Route::resource('penyerahan-sk', 'App\Http\Controllers\Admin\PenyerahanSkController')
         ->names('penyerahan-sk')
@@ -117,7 +131,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::resource('rekapitulasi-penyerahan', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenyerahanController')
         ->only(['index', 'exportExcel']);
     Route::get('rekapitulasi-penyerahan/export', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenyerahanController@export')
-    ->name('rekapitulasi-penyerahan.export');
+        ->name('rekapitulasi-penyerahan.export');
 });
 
 // File access route
