@@ -94,8 +94,8 @@
     <!-- Header -->
     <header class="text-center space-y-5 px-6 mt-24 fade-in">
       <h1 class="text-5xl font-extrabold text-gray-700 tracking-tight drop-shadow-md">Selamat Datang di</h1>
-      <h2 class="text-4xl font-semibold text-gray-700 fade-in [animation-delay:0.2s]">Layanan Izin Khusus</h2>
-      <p class="max-w-2xl mx-auto text-lg text-gray-600 leading-relaxed font-medium fade-in [animation-delay:0.4s]">
+      <h2 class="text-4xl font-semibold text-gray-600 fade-in [animation-delay:0.2s]">Layanan Izin Khusus</h2>
+      <p class="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed font-medium fade-in [animation-delay:0.4s]">
         Sistem ini memudahkan Anda mengajukan izin secara online dengan proses cepat, efisien, dan tertata.
       </p>
     </header>
