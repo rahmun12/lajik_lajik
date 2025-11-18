@@ -23,7 +23,7 @@
                 </div>
             @endif
             
-            <form action="{{ route('admin.penerimaan-sk.store') }}" method="POST">
+            <form action="{{ route('admin.penerimaan-sk.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @include('admin.penerimaan-sk._form', ['personalData' => $personalData])
             </form>

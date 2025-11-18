@@ -10,6 +10,7 @@ use App\Models\JenisIzin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class PenerimaanSkController extends Controller
@@ -163,12 +164,22 @@ class PenerimaanSkController extends Controller
                 'tanggal_terbit' => 'required|date',
                 'petugas_menyerahkan' => 'required|string|max:255',
                 'petugas_menerima' => 'required|string|max:255',
+                'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
             // Cek apakah sudah ada data dengan personal_data_id yang sama
             $existingData = PenerimaanSk::where('personal_data_id', $request->personal_data_id)->first();
             if ($existingData) {
                 return redirect()->back()->with('error', 'Data untuk pemohon ini sudah ada. Silakan edit data yang sudah ada.');
+            }
+
+            // Upload foto
+            $fotoPath = null;
+            if ($request->hasFile('foto')) {
+                $foto = $request->file('foto');
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $foto->getClientOriginalName());
+                $foto->storeAs('public/penerimaan_sk', $filename);
+                $fotoPath = 'penerimaan_sk/' . $filename; // disimpan tanpa 'public/' agar bisa diakses via asset('storage/...')
             }
 
             // Buat data baru
@@ -178,6 +189,7 @@ class PenerimaanSkController extends Controller
             $data->tanggal_terbit = $request->tanggal_terbit;
             $data->petugas_menyerahkan = $request->petugas_menyerahkan;
             $data->petugas_menerima = $request->petugas_menerima;
+            $data->foto = $fotoPath;
             $data->save();
 
             return redirect()->route('admin.penerimaan-sk.index')
@@ -247,16 +259,30 @@ class PenerimaanSkController extends Controller
                 'tanggal_terbit' => 'required|date',
                 'petugas_menyerahkan' => 'required|string|max:255',
                 'petugas_menerima' => 'required|string|max:255',
+                'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
             $penerimaanSk = PenerimaanSk::findOrFail($id);
 
-            $penerimaanSk->update([
-                'no_sk_izin' => $request->no_sk_izin,
-                'tanggal_terbit' => $request->tanggal_terbit,
-                'petugas_menyerahkan' => $request->petugas_menyerahkan,
-                'petugas_menerima' => $request->petugas_menerima,
-            ]);
+            // Update basic fields
+            $penerimaanSk->no_sk_izin = $request->no_sk_izin;
+            $penerimaanSk->tanggal_terbit = $request->tanggal_terbit;
+            $penerimaanSk->petugas_menyerahkan = $request->petugas_menyerahkan;
+            $penerimaanSk->petugas_menerima = $request->petugas_menerima;
+
+            // Optional foto replacement
+            if ($request->hasFile('foto')) {
+                // delete old if exists
+                if (!empty($penerimaanSk->foto)) {
+                    Storage::delete('public/' . ltrim($penerimaanSk->foto, '/'));
+                }
+                $foto = $request->file('foto');
+                $filename = time() . '_' . preg_replace('/\s+/', '_', $foto->getClientOriginalName());
+                $foto->storeAs('public/penerimaan_sk', $filename);
+                $penerimaanSk->foto = 'penerimaan_sk/' . $filename;
+            }
+
+            $penerimaanSk->save();
 
             return redirect()->route('admin.penerimaan-sk.index')
                 ->with('success', 'Data penerimaan SK berhasil diperbarui.');

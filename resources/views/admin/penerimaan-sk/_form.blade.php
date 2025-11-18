@@ -57,6 +57,20 @@
         value="{{ old('petugas_menerima', $penerimaanSk->petugas_menerima ?? '') }}" required>
 </div>
 
+<div class="form-group mb-3">
+    <label for="foto" class="form-label">Foto Penyerahan</label>
+    <input type="file" class="form-control" id="foto" name="foto" accept="image/*" {{ isset($penerimaanSk) ? '' : 'required' }}>
+    @if(isset($penerimaanSk) && !empty($penerimaanSk->foto))
+        <div class="mt-2">
+            <img src="{{ asset('storage/' . $penerimaanSk->foto) }}" alt="Foto Penyerahan" style="max-width: 220px; height: auto;">
+        </div>
+    @endif
+    <small class="text-muted">Format: JPG, PNG, JPEG (Maksimal 2MB)</small>
+    @error('foto')
+        <div class="text-danger small mt-1">{{ $message }}</div>
+    @enderror
+</div>
+
 <div class="form-group text-end mt-4">
     <a href="{{ route('admin.penerimaan-sk.index') }}" class="btn btn-secondary me-2">Batal</a>
     <button type="submit" class="btn btn-primary">

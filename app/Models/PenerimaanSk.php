@@ -18,7 +18,8 @@ class PenerimaanSk extends Model
         'tanggal_penerimaan',
         'alamat_penerimaan',
         'petugas_menyerahkan',
-        'petugas_menerima'
+        'petugas_menerima',
+        'foto'
     ];
 
     protected $dates = [
