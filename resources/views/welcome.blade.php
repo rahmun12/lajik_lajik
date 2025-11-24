@@ -76,7 +76,7 @@
   </style>
 </head>
 
-<body class="relative overflow-x-hidden bg-gradient-to-br from-gray-200 via-gray-100 to-gray-50 min-h-screen font-sans text-[#1a1a1a] tracking-wide">
+<body class="relative overflow-x-hidden bg-gradient-to-br from-gray-100 via-gray-100 to-gray-50 min-h-screen font-sans text-[#1a1a1a] tracking-wide">
 
   <!-- Background gelombang -->
   <div class="strong-pattern">
@@ -86,25 +86,32 @@
   </div>
 
   <!-- Cahaya lembut tapi kontras -->
-  <div class="floating-light w-96 h-96 bg-gray-500/40 top-32 left-20"></div>
-  <div class="floating-light w-[30rem] h-[30rem] bg-gray-700/30 bottom-0 right-10"></div>
+  <div class="floating-light w-96 h-96 bg-gray-600/50 top-32 left-20"></div>
+  <div class="floating-light w-[30rem] h-[30rem] bg-gray-700/40 bottom-0 right-10"></div>
 
   <main class="relative flex flex-col items-center justify-start z-10">
 
     <!-- Header -->
     <header class="text-center space-y-5 px-6 mt-24 fade-in">
-      <h1 class="text-5xl font-extrabold text-gray-700 tracking-tight drop-shadow-md">Selamat Datang di</h1>
-      <h2 class="text-4xl font-semibold text-gray-600 fade-in [animation-delay:0.2s]">Layanan Izin Khusus</h2>
+
+     <!-- Tambahkan gambar di sini -->
+  <img src="{{ asset('images/lajik.png') }}" 
+       alt="Logo LAJIK" 
+       class="mx-auto w-60 h-auto fade-in drop-shadow-xl rounded-xl [animation-delay:0.1s]" />
+
+      <h1 class="text-5xl font-extrabold text-gray-700 tracking-tight drop-shadow-md">SELAMAT DATANG DI</h1>
+      <h2 class="text-4xl font-semibold text-gray-600 fade-in [animation-delay:0.2s]">Layanan Antar Jemput Izin Khusus</h2>
+      <h2 class="text-4xl font-bold text-gray-700 fade-in [animation-delay:0.2s]">LAJIK</h2>
       <p class="max-w-2xl mx-auto text-lg text-gray-500 leading-relaxed font-medium fade-in [animation-delay:0.4s]">
-        Sistem ini memudahkan Anda mengajukan izin secara online dengan proses cepat, efisien, dan tertata.
+      Sistem pengajuan izin khusus secara online untuk kaum rentan (lansia, difabel, dan ibu hamil) di Kabupaten Magetan.
       </p>
     </header>
 
     <!-- Divider -->
-    <div class="w-28 h-1.5 bg-gray-600 rounded-full mt-10 mb-4 fade-in [animation-delay:0.6s]"></div>
+    <div class="w-28 h-1.5 bg-gray-400 rounded-full mt-10 mb-4 fade-in [animation-delay:0.5s]"></div>
 
     <!-- Features -->
-    <section class="w-full max-w-6xl mt-10 px-8 fade-in [animation-delay:0.8s]">
+    <section class="w-full max-w-6xl mt-10 px-8 fade-in [animation-delay:0.7s]">
       <div class="grid md:grid-cols-3 gap-10">
 
         <div class="bg-white border border-gray-300 rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition duration-300">
