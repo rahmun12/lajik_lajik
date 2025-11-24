@@ -51,8 +51,8 @@ Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController
 Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
-// Admin Inti Routes (Protected by auth and CheckAdminInti middleware)
-Route::prefix('admin-inti')->name('admin_inti.')->middleware(['auth', \App\Http\Middleware\CheckAdminInti::class])->group(function () {
+// Admin Inti Routes (direct access; guarded by CheckAdminInti which auto-creates/logs in admin_inti)
+Route::prefix('admin-inti')->name('admin_inti.')->middleware([\App\Http\Middleware\CheckAdminInti::class])->group(function () {
     // User Management
     Route::resource('users', 'App\Http\Controllers\Admin\UserController')
         ->names('users');

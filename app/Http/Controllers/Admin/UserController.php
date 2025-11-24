@@ -21,12 +21,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::where(function($query) {
-                        $query->where('role', '!=', 'admin_inti')
-                              ->orWhere('id', Auth::id());
-                    })
-                    ->latest()
-                    ->paginate(10);
+        // Tampilkan semua user termasuk admin_inti
+        $users = User::latest()->paginate(10);
 
         return view('admin.users.index', compact('users'));
     }

@@ -43,8 +43,8 @@
                         <td>{{ $item->personalData->nama ?? 'N/A' }}</td>
                         <td>{{ $item->no_sk_izin }}</td>
                         <td>{{ $item->personalData->alamat_jalan ?? 'N/A' }}, RT {{ $item->personalData->rt ?? '' }}/RW {{ $item->personalData->rw ?? '' }}, {{ $item->personalData->kelurahan ?? '' }}, {{ $item->personalData->kecamatan ?? '' }}</td>
-                        <td>{{ $item->petugas_menyerahkan }}</td>
-                        <td>{{ $item->petugas_menerima }}</td>
+                        <td>{{ $item->petugas_menyerahkan ?? '-' }}</td>
+                        <td>{{ $item->petugas_menerima ?? '-' }}</td>
                         <td>
                             <div class="btn-group" role="group">
                                 <a href="{{ route('admin.users.regular.edit', $item->id) }}" class="btn btn-sm btn-warning">
