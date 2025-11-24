@@ -273,14 +273,14 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">RT</label>
+                                <label class="form-label">RT <span class="text-danger">*</span></label>
                                 <input type="text" name="rt" class="form-control"
-                                    value="{{ old('rt') }}"placeholder="*Wajib Diisi" required>
+                                    value="{{ old('rt') }}"placeholder="Wajib Diisi" required>
                             </div>
                             <div class="col-md-6 mb-4">
-                                <label class="form-label">RW</label>
+                                <label class="form-label">RW <span class="text-danger">*</span></label>
                                 <input type="text" name="rw" class="form-control"
-                                    value="{{ old('rw') }}"placeholder="*Wajib Diisi" required>
+                                    value="{{ old('rw') }}"placeholder="Wajib Diisi" required>
                             </div>
                         </div>
 
@@ -329,17 +329,17 @@
                     {{-- kolom kanan --}}
                     <div class="col-md-6">
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">No. Telp/WA</label>
+                            <label class="form-label fw-semibold">No. Telp/WA <span class="text-danger">*</span></label>
                             <input type="text" name="no_telp" class="form-control" value="{{ old('no_telp') }}">
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">No. KTP</label>
+                            <label class="form-label fw-semibold">No. KTP <span class="text-danger">*</span></label>
                             <input type="text" name="no_ktp" class="form-control" value="{{ old('no_ktp') }}">
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label fw-semibold">No. KK</label>
+                            <label class="form-label fw-semibold">No. KK <span class="text-danger">*</span></label>
                             <input type="text" name="no_kk" class="form-control" value="{{ old('no_kk') }}">
                         </div>
 
