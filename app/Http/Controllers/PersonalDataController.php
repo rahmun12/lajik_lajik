@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use App\Services\LocationService;
 
 class PersonalDataController extends Controller
 {
@@ -139,8 +140,12 @@ class PersonalDataController extends Controller
             // 6) Kirim notifikasi Telegram setelah commit
             try {
                 $telegramService = new TelegramService();
+                $locationService = new LocationService();
                 $wibTime = Carbon::now('Asia/Jakarta');
                 $jenisIzin = JenisIzin::find($request->jenis_izin);
+
+                $kecamatanName = $locationService->getKecamatanName($personalData->kecamatan);
+                $kelurahanName = $locationService->getKelurahanName($personalData->kelurahan);
 
                 $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
                     "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
@@ -150,6 +155,9 @@ class PersonalDataController extends Controller
                     (($personalData->rt || $personalData->rw) ?
                         " RT " . $personalData->rt .
                         "/RW " . $personalData->rw . "\n" : "\n") .
+                    "🏘️ Desa/Kel: " . $kelurahanName . "\n" .
+                    "🏙️ Kecamatan: " . $kecamatanName . "\n" .
+                    "📱 No HP: " . $personalData->no_telp . "\n" .
                     "📋 Jenis Izin: " . ($jenisIzin ? $jenisIzin->nama_izin : '-') . "\n\n" .
                     "Segera lakukan verifikasi data pengajuan ini.";
 
