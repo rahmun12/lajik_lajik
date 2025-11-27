@@ -168,6 +168,13 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('admin/penyerahan-sk*') ? 'active' : '' }}"
                             href="{{ route('admin.penyerahan-sk.index') }}">
+                            <i class="fas fa-file-export me-2"></i>
+                            Penyerahan SK
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('admin/penyerahan-sk*') ? 'active' : '' }}"
+                            href="{{ route('admin.penyerahan-sk.index') }}">
                             <i class="fas fa-file-import me-2"></i>
                             Rekapitulasi Penyerahan Perizinan Layanan Khusus (LAJIK)
                         </a>
@@ -201,21 +208,21 @@
         <!-- Main content -->
         <main class="col-md-9 ms-sm-auto col-lg-10 p-0">
             <div class="p-4">
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 @endif
 
-                @if($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
                 @endif
 
                 @yield('admin-content')

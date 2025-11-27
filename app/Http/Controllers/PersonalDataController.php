@@ -214,11 +214,14 @@ class PersonalDataController extends Controller
             $data = PersonalData::with([
                 'izinPengajuan' => function ($query) {
                     // bila model IzinPengajuan memakai SoftDeletes, withTrashed() bisa dipakai di relation
-                    $query->withTrashed()->with('jenisIzin');
+                    $query->withTrashed()->with(['jenisIzin.persyaratans' => function($q) {
+                        $q->withTrashed();
+                    }]);
                 },
                 'fieldVerifications',
                 'penerimaanSk',
-                'serahTerima'
+                'serahTerima',
+                'user'
             ])->orderBy('created_at', 'desc')->get();
 
             if ($data->isNotEmpty()) {
