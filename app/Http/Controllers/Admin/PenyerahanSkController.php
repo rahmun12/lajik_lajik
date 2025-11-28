@@ -29,6 +29,17 @@ class PenyerahanSkController extends Controller
         return view('admin.penyerahan-sk.index', compact('items'));
     }
 
+    public function pending()
+    {
+        // Ambil data Penerimaan SK yang belum diproses ke Penyerahan SK
+        $items = PenerimaanSk::doesntHave('penyerahanSk')
+            ->with(['personalData.izinPengajuan.jenisIzin'])
+            ->latest()
+            ->get();
+
+        return view('admin.penyerahan-sk.penyerahanSK.penyerahanSK', compact('items'));
+    }
+
     /**
      * Export data to Excel
      */

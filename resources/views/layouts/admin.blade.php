@@ -166,19 +166,20 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('admin/penyerahan-sk*') ? 'active' : '' }}"
-                            href="{{ route('admin.penyerahan-sk.index') }}">
+                        <a class="nav-link {{ request()->routeIs('admin.penyerahan-sk.pending') ? 'active' : '' }}"
+                            href="{{ route('admin.penyerahan-sk.pending') }}">
                             <i class="fas fa-file-export me-2"></i>
                             Penyerahan SK
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->is('admin/penyerahan-sk*') ? 'active' : '' }}"
+                        <a class="nav-link {{ request()->routeIs('admin.penyerahan-sk.index') ? 'active' : '' }}"
                             href="{{ route('admin.penyerahan-sk.index') }}">
                             <i class="fas fa-file-import me-2"></i>
-                            Rekapitulasi Penyerahan Perizinan Layanan Khusus (LAJIK)
+                            Rekapitulasi Penyerahan SK
                         </a>
                     </li>
+
                     <li class="nav-item">
                         <a class="nav-link {{ request()->is('admin/rekapitulasi-penerimaan*') ? 'active' : '' }}"
                             href="{{ route('admin.rekapitulasi-penerimaan.index') }}">

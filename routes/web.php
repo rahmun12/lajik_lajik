@@ -109,6 +109,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('penyerahan-sk/export', 'App\Http\Controllers\Admin\PenyerahanSkController@exportExcel')
         ->name('penyerahan-sk.export');
 
+    Route::get('penyerahan-sk/pending', 'App\Http\Controllers\Admin\PenyerahanSkController@pending')
+        ->name('penyerahan-sk.pending');
+
     // Resource route for Penyerahan SK (exclude show method if not needed)
     Route::resource('penyerahan-sk', 'App\Http\Controllers\Admin\PenyerahanSkController')
         ->names('penyerahan-sk')
