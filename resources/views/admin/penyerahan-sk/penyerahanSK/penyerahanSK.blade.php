@@ -43,7 +43,7 @@
                                 <td>
                                     {{ $item->personalData->izinPengajuan->first()->jenisIzin->nama_izin ?? 'N/A' }}
                                 </td>
-                                {-- Tanggal Terbit --}}
+
                                 <td>
                                     @php
                                         $isSerahTerima = is_array($item) ? $item['is_serah_terima'] ?? false : false;
