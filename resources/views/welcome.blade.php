@@ -246,16 +246,10 @@
                         <p id="desc-4"
                             class="text-base text-gray-700 font-medium line-clamp-4 transition-all duration-300 whitespace-pre-line">
                             1. KTP
-                            2. Email Aktif
-                            3. Nomor HP
-                            4. NPWP (Jika ada)
-                            5. BPJS Kesehatan/ BPJS Ketenagakerjaan
-                            6. Luas Usaha Kurang dari 100 m2
+                            2. Email Aktif/ Nomor HP
+
                         </p>
-                        <button onclick="toggleReadMore('desc-4', this)"
-                            class="text-blue-600 hover:text-blue-800 text-sm font-semibold mt-2 focus:outline-none">
-                            Selengkapnya
-                        </button>
+
                     </div>
                 </div>
 

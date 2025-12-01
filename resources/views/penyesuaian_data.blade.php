@@ -921,7 +921,6 @@
                     const namaStatus = getVerificationStatus(item, 'nama_check');
                     const alamatStatus = getVerificationStatus(item, 'alamat_check');
                     const telpStatus = getVerificationStatus(item, 'telp_check');
-                    const kkStatus = getVerificationStatus(item, 'kk_check');
                     const ktpStatus = getVerificationStatus(item, 'ktp_check');
 
                     const checklistHtml = `
@@ -981,20 +980,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>No. KK</td>
-                                    <td>${item.no_kk || '-'}</td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <input type="radio" class="btn-check checklist-radio" name="check_kk_${item.id}" id="check_kk_ok_${item.id}" autocomplete="off" data-field="kk_check" data-item-id="${item.id}" value="1" ${kkStatus === 1 ? 'checked' : ''}>
-                                            <label class="btn btn-outline-success" for="check_kk_ok_${item.id}"><i class="fas fa-check me-1"></i> Sesuai</label>
-
-                                            <input type="radio" class="btn-check checklist-radio" name="check_kk_${item.id}" id="check_kk_no_${item.id}" autocomplete="off" data-field="kk_check" data-item-id="${item.id}" value="0" ${kkStatus === 0 ? 'checked' : ''}>
-                                            <label class="btn btn-outline-danger" for="check_kk_no_${item.id}"><i class="fas fa-times me-1"></i> Tidak Sesuai</label>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
+                                            <tr>
                                     <td>No. KTP</td>
                                     <td>${item.no_ktp || '-'}</td>
                                     <td class="text-center">
@@ -1103,10 +1089,10 @@
                                             <div class="text-center mb-3">
                                                 ${item.serah_terima && item.serah_terima.foto_berkas ? 
                                                     `<img src="${item.serah_terima.foto_berkas.startsWith('http') ? '' : '/storage/'}${item.serah_terima.foto_berkas}" 
-                                                                                                                                                          class="img-fluid img-thumbnail document-preview mb-2" 
-                                                                                                                                                          style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                          onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                          onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
+                                                                  class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                  style="max-height: 200px; cursor: pointer;" 
+                                                                  onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                  onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
                                                     '<div class="text-muted py-4 border rounded">Belum ada foto berkas diunggah</div>'
                                                 }
                                             </div>
@@ -1130,168 +1116,143 @@
 
                     // Generate personal information
                     let detailsHtml = `
-                                <!-- KTP & KK Photos Section -->
-                                <div class="mb-4">
-                                    <h6 class="border-bottom pb-2">Dokumen Pribadi</h6>
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Foto KTP</h6>
+                                        <!-- KTP & KK Photos Section -->
+                                        <div class="mb-4">
+                                            <h6 class="border-bottom pb-2">Dokumen Pribadi</h6>
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <div class="card">
+                                                        <div class="card-header bg-light">
+                                                            <h6 class="mb-0">Foto KTP</h6>
+                                                        </div>
+                                                        <div class="card-body text-center">
+                                                            ${item.foto_ktp ? 
+                                                                `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
+                                                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
+                                                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                                                                                              onclick="viewImage(this)">
+                                                                                                                                                                                         <div class="mt-2">
+                                                                                                                                                                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                                                                                                                                                                target="_blank" 
+                                                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
+                                                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KTP
+                                                                                                                                                                                             </a>
+                                                                                                                                                                                         </div>`
+                                                                : 
+                                                                '<div class="text-muted">Tidak ada foto KTP</div>'
+                                                            }
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div class="card-body text-center">
-                                                    ${item.foto_ktp ? 
-                                                        `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
-                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                              onclick="viewImage(this)">
-                                                                                                                                                         <div class="mt-2">
-                                                                                                                                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                target="_blank" 
-                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
-                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KTP
-                                                                                                                                                             </a>
-                                                                                                                                                         </div>`
-                                                        : 
-                                                        '<div class="text-muted">Tidak ada foto KTP</div>'
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="mb-0">Foto KK</h6>
-                                                </div>
-                                                <div class="card-body text-center">
-                                                    ${item.foto_kk ? 
-                                                        `<img src="${item.foto_kk.startsWith('http') ? '' : '/storage/'}${item.foto_kk}" 
-                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
-                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                              onclick="viewImage(this)">
-                                                                                                                                                         <div class="mt-2">
-                                                                                                                                                             <a href="${item.foto_kk.startsWith('http') ? '' : '/storage/'}${item.foto_kk}" 
-                                                                                                                                                                target="_blank" 
-                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
-                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KK
-                                                                                                                                                             </a>
-                                                                                                                                                         </div>`
-                                                        : 
-                                                        '<div class="text-muted">Tidak ada foto KK</div>'
-                                                    }
+                                                <div class="col-md-6">
+                                                   
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="mb-4">
-                                    <h4 class="mb-4">Detail Data Pengajuan</h4>
-                                    <h6 class="border-bottom pb-2">Data Pribadi</h6>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <table class="table table-sm">
-                                                <tr>
-                                                    <th width="40%">Nama Lengkap</th>
-                                                    <td>${item.nama || '-'}</td>
-                                                </tr>
-                                            <tr>
-                                                <th>No. KTP</th>
-                                                <td>${item.no_ktp || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>No. KK</th>
-                                                <td>${item.no_kk || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>No. Telp/WA</th>
-                                                <td>${item.no_telp || '-'}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6>Alamat</h6>
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th>Jalan</th>
-                                                <td>${item.alamat_jalan || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>RT/RW</th>
-                                                <td>${item.rt || '-'}/${item.rw || '-'}</td>
-                                            </tr>a
-                                            <tr>
-                                                <th>Kelurahan/Desa</th>
-                                                <td>${item.kelurahan || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Kecamatan</th>
-                                                <td>${item.kecamatan || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Kabupaten/Kota</th>
-                                                <td>${item.kabupaten_kota || '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Kode Pos</th>
-                                                <td>${item.kode_pos || '-'}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
+                                        <div class="mb-4">
+                                            <h4 class="mb-4">Detail Data Pengajuan</h4>
+                                            <h6 class="border-bottom pb-2">Data Pribadi</h6>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <table class="table table-sm">
+                                                        <tr>
+                                                            <th width="40%">Nama Lengkap</th>
+                                                            <td>${item.nama || '-'}</td>
+                                                        </tr>
+                                                    <tr>
+                                                        <th>No. KTP</th>
+                                                        <td>${item.no_ktp || '-'}</td>
+                                                    </tr>
+                                                    
+                                                    <tr>
+                                                        <th>No. Telp/WA</th>
+                                                        <td>${item.no_telp || '-'}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Alamat</h6>
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th>Jalan</th>
+                                                        <td>${item.alamat_jalan || '-'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>RT/RW</th>
+                                                        <td>${item.rt || '-'}/${item.rw || '-'}</td>
+                                                    </tr>a
+                                                    <tr>
+                                                        <th>Kelurahan/Desa</th>
+                                                        <td>${item.kelurahan || '-'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Kecamatan</th>
+                                                        <td>${item.kecamatan || '-'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Kabupaten/Kota</th>
+                                                        <td>${item.kabupaten_kota || '-'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Kode Pos</th>
+                                                        <td>${item.kode_pos || '-'}</td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        
+                                        ${checklistHtml}
                                 
+                                ${requirementsChecklistHtml}
+
                                 ${requirementsHtml}
                                 
-                                ${checklistHtml}
-                        
-                        ${requirementsChecklistHtml}
-                        
-                        ${documentPreviews}
-                                <div class="row mt-3">
-                                    <div class="col-12">
-                                        <h6>Informasi Pengajuan</h6>
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th>Jenis Izin</th>
-                                                <td>${item.izin_pengajuan ? item.izin_pengajuan[0].jenis_izin.nama_izin : '-'}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Tanggal Pengajuan</th>
-                                                <td>${new Date(item.created_at).toLocaleDateString('id-ID', { 
-                                                    day: '2-digit', 
-                                                    month: 'long', 
-                                                    year: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Status Verifikasi</th>
-                                                <td>
-                                                    ${item.is_verified 
-                                                        ? '<span class="badge bg-success">Terverifikasi</span>' 
-                                                        : '<span class="badge bg-warning">Menunggu Verifikasi</span>'}
-                                                </td>
-                                            </tr>
-                                            ${item.verification_notes ? `
-                                                                                                                                            <tr>
-                                                                                                                                                <th>Catatan Verifikasi</th>
-                                                                                                                                                <td>${item.verification_notes}</td>
-                                                                                                                                            </tr>
-                                                                                                                                            ` : ''}
-                                        </table>
-                                    </div>
-                                </div>
-                            `;
+                                ${documentPreviews}
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <h6>Informasi Pengajuan</h6>
+                                                <table class="table table-sm">
+                                                    <tr>
+                                                        <th>Jenis Izin</th>
+                                                        <td>${item.izin_pengajuan ? item.izin_pengajuan[0].jenis_izin.nama_izin : '-'}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Tanggal Pengajuan</th>
+                                                        <td>${new Date(item.created_at).toLocaleDateString('id-ID', { 
+                                                            day: '2-digit', 
+                                                            month: 'long', 
+                                                            year: 'numeric',
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th>Status Verifikasi</th>
+                                                        <td>
+                                                            ${item.is_verified 
+                                                                ? '<span class="badge bg-success">Terverifikasi</span>' 
+                                                                : '<span class="badge bg-warning">Menunggu Verifikasi</span>'}
+                                                        </td>
+                                                    </tr>
+                                                    ${item.verification_notes ? `
+                                                                                                                                                                            <tr>
+                                                                                                                                                                                <th>Catatan Verifikasi</th>
+                                                                                                                                                                                <td>${item.verification_notes}</td>
+                                                                                                                                                                            </tr>
+                                                                                                                                                                            ` : ''}
+                                                </table>
+                                            </div>
+                                        </div>
+                                    `;
 
                     // Combine all sections - removed duplicate document upload section
                     const modalContent = `
-                                <div class="container-fluid">
-                                    ${detailsHtml}
-                                </div>
-                            `;
+                                        <div class="container-fluid">
+                                            ${detailsHtml}
+                                        </div>
+                                    `;
 
                     // Update modal content
                     $('#detailModal .modal-body').html(modalContent);
@@ -1465,12 +1426,12 @@
                                             `/storage/${response.file_path}`;
 
                                         previewContainer.html(`
-                                                        <img src="${imgSrc}" 
-                                                             class="img-fluid img-thumbnail document-preview mb-2" 
-                                                             style="max-height: 200px; cursor: pointer;" 
-                                                             onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                             onclick="viewDocument('${response.file_path}')
-                                                    `);
+                                                                <img src="${imgSrc}" 
+                                                                     class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                     style="max-height: 200px; cursor: pointer;" 
+                                                                     onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                     onclick="viewDocument('${response.file_path}')
+                                                            `);
                                     }
                                 }
 
@@ -1519,15 +1480,15 @@
                 }
 
                 const toast = `
-                        <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    ${message}
+                                <div class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                                    <div class="d-flex">
+                                        <div class="toast-body">
+                                            ${message}
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                                    </div>
                                 </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    `;
+                            `;
 
                 // Add new toast
                 $('.toast-container').append(toast);
@@ -1549,22 +1510,22 @@
                 }
 
                 const modal = `
-                       <div class="modal fade" id="imageViewerModal" tabindex="-1" aria-labelledby="imageViewerModalLabel" aria-modal="true">
-                           <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
-                               <div class="modal-content">
-                                   <div class="modal-header">
-                                       <h5 class="modal-title" id="imageViewerModalLabel">Pratinjau Dokumen</h5>
-                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                               <div class="modal fade" id="imageViewerModal" tabindex="-1" aria-labelledby="imageViewerModalLabel" aria-modal="true">
+                                   <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+                                       <div class="modal-content">
+                                           <div class="modal-header">
+                                               <h5 class="modal-title" id="imageViewerModalLabel">Pratinjau Dokumen</h5>
+                                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                           </div>
+                                           <div class="modal-body text-center p-0">
+                                               <img src="${src}" class="img-fluid" style="max-height: 80vh;" alt="Pratinjau dokumen">
+                                           </div>
+                                           <div class="modal-footer">
+                                               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                           </div>
+                                       </div>
                                    </div>
-                                   <div class="modal-body text-center p-0">
-                                       <img src="${src}" class="img-fluid" style="max-height: 80vh;" alt="Pratinjau dokumen">
-                                   </div>
-                                   <div class="modal-footer">
-                                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                                   </div>
-                               </div>
-                           </div>
-                       </div>`;
+                               </div>`;
 
                 // Remove any existing modals
                 $('#imageViewerModal').remove();

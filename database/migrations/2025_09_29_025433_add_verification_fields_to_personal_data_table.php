@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('personal_data', function (Blueprint $table) {
-            $table->boolean('is_verified')->default(false)->after('no_kk');
+            $table->boolean('is_verified')->default(false)->after('foto_ktp');
             $table->text('verification_notes')->nullable()->after('is_verified');
             $table->foreignId('verified_by')->nullable()->constrained('users')->after('verification_notes');
             $table->timestamp('verified_at')->nullable()->after('verified_by');

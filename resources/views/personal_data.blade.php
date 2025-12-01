@@ -244,7 +244,8 @@
 
             {{-- Header --}}
             <div class="text-center mb-5">
-                <h3 class="fw-bold" style="color:#36393a;">Formulir Pengajuan Izin</h3>
+                <h3 class="fw-bold" style="color:#36393a;">Formulir Pengajuan Izin Penerbitan NIB (Nomor Induk Berusaha)
+                </h3>
                 <p class="text-muted mb-0" style="color:#7a7a7a;">Silakan isi data di bawah ini dengan lengkap dan benar</p>
             </div>
 
@@ -338,10 +339,7 @@
                             <input type="text" name="no_ktp" class="form-control" value="{{ old('no_ktp') }}">
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">No. KK <span class="text-danger">*</span></label>
-                            <input type="text" name="no_kk" class="form-control" value="{{ old('no_kk') }}">
-                        </div>
+
 
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Upload Foto KTP <span
@@ -350,12 +348,7 @@
                             <small class="text-muted">Format: JPG, JPEG, PNG (Maks. 2MB)</small>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Upload Foto KK <span
-                                    class="text-danger">*</span></label>
-                            <input type="file" name="foto_kk" class="form-control" required>
-                            <small class="text-muted">Format: JPG, JPEG, PNG (Maks. 2MB)</small>
-                        </div>
+
                     </div>
                 </div>
 

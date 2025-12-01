@@ -39,23 +39,17 @@ class PersonalDataController extends Controller
             'kode_pos' => 'nullable|string|max:5',
             'no_telp' => 'nullable|string|max:20',
             'no_ktp' => 'nullable|string|size:16',
-            'no_kk' => 'nullable|string|size:16',
             'jenis_izin' => 'required|exists:jenis_izins,id',
             'foto_ktp' => 'required|file|mimes:jpg,jpeg,png|max:2048',
-            'foto_kk' => 'required|file|mimes:jpg,jpeg,png|max:2048',
             'pendukung' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ];
 
         $messages = [
             'kode_pos.max' => 'Kode pos maksimal 5 karakter',
             'no_ktp.size' => 'Nomor KTP harus 16 digit',
-            'no_kk.size' => 'Nomor KK harus 16 digit',
             'foto_ktp.required' => 'Foto KTP wajib diunggah',
-            'foto_kk.required' => 'Foto KK wajib diunggah',
             'foto_ktp.mimes' => 'Format file harus JPG, JPEG, atau PNG',
-            'foto_kk.mimes' => 'Format file harus JPG, JPEG, atau PNG',
             'foto_ktp.max' => 'Ukuran file maksimal 2MB',
-            'foto_kk.max' => 'Ukuran file maksimal 2MB',
             'pendukung.max' => 'Ukuran file maksimal 2MB',
         ];
 
@@ -86,18 +80,11 @@ class PersonalDataController extends Controller
 
             // 3) Handle file uploads dengan Storage (disk 'public')
             $fotoKtpPath = null;
-            $fotoKkPath = null;
 
             if ($request->hasFile('foto_ktp')) {
                 $ktpPath = 'ktp_photos/' . date('Y/m/d');
                 $fotoKtpPath = $request->file('foto_ktp')->store($ktpPath, 'public');
             }
-
-            if ($request->hasFile('foto_kk')) {
-                $kkPath = 'kk_photos/' . date('Y/m/d');
-                $fotoKkPath = $request->file('foto_kk')->store($kkPath, 'public');
-            }
-
             // optional 'pendukung'
             $pendukungPath = null;
             if ($request->hasFile('pendukung')) {
@@ -116,12 +103,10 @@ class PersonalDataController extends Controller
                 'kode_pos',
                 'no_telp',
                 'no_ktp',
-                'no_kk'
             ]);
 
             $data['user_id'] = Auth::id();
             $data['foto_ktp'] = $fotoKtpPath;
-            $data['foto_kk'] = $fotoKkPath;
             if ($pendukungPath) $data['pendukung'] = $pendukungPath;
 
             $personalData = PersonalData::create($data);
@@ -181,9 +166,6 @@ class PersonalDataController extends Controller
             try {
                 if (!empty($fotoKtpPath) && Storage::disk('public')->exists($fotoKtpPath)) {
                     Storage::disk('public')->delete($fotoKtpPath);
-                }
-                if (!empty($fotoKkPath) && Storage::disk('public')->exists($fotoKkPath)) {
-                    Storage::disk('public')->delete($fotoKkPath);
                 }
                 if (!empty($pendukungPath) && Storage::disk('public')->exists($pendukungPath)) {
                     Storage::disk('public')->delete($pendukungPath);
@@ -303,7 +285,6 @@ class PersonalDataController extends Controller
     {
         $request->validate([
             'id' => 'required|exists:personal_data,id',
-            'doc_type' => 'required|in:ktp,kk,selfie',
             'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
             'notes' => 'nullable|string|max:1000'
         ]);
@@ -311,7 +292,7 @@ class PersonalDataController extends Controller
         $personalData = PersonalData::findOrFail($request->id);
         $fieldMap = [
             'ktp' => 'foto_ktp',
-            'kk' => 'foto_kk',
+
             'selfie' => 'foto_selfie_ktp'
         ];
 
