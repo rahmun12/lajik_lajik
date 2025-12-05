@@ -28,6 +28,7 @@ class PersonalData extends Model
         'foto_ktp',
         'pendukung',
         'foto_selfie_ktp',
+        'kaum_rentan',
         'is_verified',
         'verification_notes',
         'verified_by',

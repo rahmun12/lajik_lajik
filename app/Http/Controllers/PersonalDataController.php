@@ -42,6 +42,7 @@ class PersonalDataController extends Controller
             'jenis_izin' => 'required|exists:jenis_izins,id',
             'foto_ktp' => 'required|file|mimes:jpg,jpeg,png|max:2048',
             'pendukung' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'kaum_rentan' => 'nullable|string|in:Ibu Hamil,Lansia,Difabel',
         ];
 
         $messages = [
@@ -103,6 +104,7 @@ class PersonalDataController extends Controller
                 'kode_pos',
                 'no_telp',
                 'no_ktp',
+                'kaum_rentan',
             ]);
 
             $data['user_id'] = Auth::id();
@@ -143,6 +145,7 @@ class PersonalDataController extends Controller
                     "🏘️ Desa/Kel: " . $kelurahanName . "\n" .
                     "🏙️ Kecamatan: " . $kecamatanName . "\n" .
                     "📱 No HP: " . $personalData->no_telp . "\n" .
+                    "♿ Kaum Rentan: " . ($personalData->kaum_rentan ?? '-') . "\n" .
                     "📋 Jenis Izin: " . ($jenisIzin ? $jenisIzin->nama_izin : '-') . "\n\n" .
                     "Segera lakukan verifikasi data pengajuan ini.";
 

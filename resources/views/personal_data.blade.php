@@ -348,6 +348,38 @@
                             <small class="text-muted">Format: JPG, JPEG, PNG (Maks. 2MB)</small>
                         </div>
 
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Kaum Rentan <span class="text-danger">*</span></label>
+                            <div class="border rounded-3 p-3">
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="kaum_rentan"
+                                            id="rentan_hamil" value="Ibu Hamil"
+                                            {{ old('kaum_rentan') == 'Ibu Hamil' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="rentan_hamil">
+                                            Ibu Hamil
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="kaum_rentan"
+                                            id="rentan_lansia" value="Lansia"
+                                            {{ old('kaum_rentan') == 'Lansia' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="rentan_lansia">
+                                            Lansia
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="kaum_rentan"
+                                            id="rentan_difabel" value="Difabel"
+                                            {{ old('kaum_rentan') == 'Difabel' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="rentan_difabel">
+                                            Difabel
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
 
                     </div>
                 </div>
