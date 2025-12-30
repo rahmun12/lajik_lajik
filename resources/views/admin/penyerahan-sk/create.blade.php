@@ -96,9 +96,28 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="foto_penyerahan" class="form-label">Foto Penyerahan</label>
-                                <input type="file" id="foto_penyerahan" class="form-control" name="foto_penyerahan"
+                                <!-- Hidden file input for form submission -->
+                                <input type="file" id="foto_penyerahan" class="d-none" name="foto_penyerahan"
                                     accept="image/*" required>
-                                <small class="text-muted">Format: JPG, PNG (Maks. 2MB)</small>
+
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-info text-white" id="btn-open-camera">
+                                        <i class="fas fa-camera me-2"></i>Ambil Foto
+                                    </button>
+                                </div>
+                                <div id="preview-container" class="mt-2 text-center d-none">
+                                    <img id="image-preview" src="#" alt="Preview Foto" class="img-thumbnail"
+                                        style="max-height: 200px;">
+                                    <div class="mt-2 text-success small">
+                                        <i class="fas fa-check-circle"></i> Foto berhasil diambil
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger mt-2" id="btn-retake">
+                                        <i class="fas fa-redo me-1"></i> Ambil Ulang
+                                    </button>
+                                </div>
+                                <div id="error-message" class="text-danger small mt-1 d-none">
+                                    Mohon ambil foto bukti penyerahan.
+                                </div>
                             </div>
                         </div>
 
@@ -127,18 +146,185 @@
             </div>
         @endif
     </div>
+    <!-- Camera Modal -->
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cameraModalLabel">Ambil Foto Penyerahan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="video-container position-relative bg-dark" style="min-height: 300px;">
+                        <video id="camera-stream" autoplay playsinline
+                            style="width: 100%; height: auto; display: none;"></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        <div id="camera-placeholder" class="d-flex justify-content-center align-items-center text-white"
+                            style="height: 300px;">
+                            <div><i class="fas fa-camera fa-3x mb-3"></i><br>Memulai kamera...</div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-primary" id="capture-btn" disabled>
+                            <i class="fas fa-camera"></i> Ambil
+                        </button>
+                        <button type="button" class="btn btn-success d-none" id="retake-modal-btn">
+                            <i class="fas fa-redo"></i> Ulangi
+                        </button>
+                        <button type="button" class="btn btn-info text-white d-none" id="save-photo-btn">
+                            <i class="fas fa-save"></i> Simpan Foto
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('penyerahanSkForm');
+            const fileInput = document.getElementById('foto_penyerahan');
+            const btnOpenCamera = document.getElementById('btn-open-camera');
+            const btnRetake = document.getElementById('btn-retake');
+            const previewContainer = document.getElementById('preview-container');
+            const imagePreview = document.getElementById('image-preview');
+            const errorMessage = document.getElementById('error-message');
 
+            // Modal elements
+            const cameraModalEl = document.getElementById('cameraModal');
+            let cameraModal;
+            if (typeof bootstrap !== 'undefined') {
+                cameraModal = new bootstrap.Modal(cameraModalEl);
+            }
+
+            const video = document.getElementById('camera-stream');
+            const canvas = document.getElementById('camera-canvas');
+            const placeholder = document.getElementById('camera-placeholder');
+            const captureBtn = document.getElementById('capture-btn');
+            const retakeModalBtn = document.getElementById('retake-modal-btn');
+            const saveBtn = document.getElementById('save-photo-btn');
+            let stream = null;
+
+            // Open Camera
+            btnOpenCamera.addEventListener('click', function() {
+                // Check if running on https or localhost (required for getUserMedia)
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location
+                    .hostname !== '127.0.0.1') {
+                    alert('Fitur kamera memerlukan koneksi HTTPS aman.');
+                    return;
+                }
+
+                if (cameraModal) cameraModal.show();
+
+                // Start camera
+                navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment'
+                        }
+                    })
+                    .then(function(mediaStream) {
+                        stream = mediaStream;
+                        video.srcObject = mediaStream;
+                        video.onloadedmetadata = function(e) {
+                            video.play();
+                            video.style.display = 'block';
+                            placeholder.style.display = 'none';
+                            captureBtn.disabled = false;
+                        };
+                    })
+                    .catch(function(err) {
+                        console.error("Error accessing camera: ", err);
+                        placeholder.innerHTML =
+                            '<div><i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i><br>Gagal mengakses kamera: ' +
+                            err.message + '<br><small>Pastikan izin kamera diberikan.</small></div>';
+                    });
+            });
+
+            // Retake from main form (just re-open camera)
+            btnRetake.addEventListener('click', function() {
+                btnOpenCamera.click();
+            });
+
+            // Capture photo in modal
+            captureBtn.addEventListener('click', function() {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                video.style.display = 'none';
+                canvas.style.display = 'block';
+                canvas.style.width = '100%';
+
+                captureBtn.classList.add('d-none');
+                retakeModalBtn.classList.remove('d-none');
+                saveBtn.classList.remove('d-none');
+            });
+
+            // Retake photo in modal
+            retakeModalBtn.addEventListener('click', function() {
+                video.style.display = 'block';
+                canvas.style.display = 'none';
+
+                retakeModalBtn.classList.add('d-none');
+                saveBtn.classList.add('d-none');
+                captureBtn.classList.remove('d-none');
+            });
+
+            // Save photo from modal
+            saveBtn.addEventListener('click', function() {
+                canvas.toBlob(function(blob) {
+                    const file = new File([blob], "penyerahan_sk_" + Date.now() + ".jpg", {
+                        type: "image/jpeg"
+                    });
+
+                    // Create DataTransfer to set file input
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+
+                    // Update preview
+                    imagePreview.src = URL.createObjectURL(blob);
+                    previewContainer.classList.remove('d-none');
+                    btnOpenCamera.parentElement.classList.add('d-none'); // Hide the initial button
+                    errorMessage.classList.add('d-none');
+
+                    // Close modal
+                    if (cameraModal) cameraModal.hide();
+
+                }, 'image/jpeg', 0.8);
+            });
+
+            // Stop stream function
+            function stopStream() {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+            }
+
+            // Cleanup on modal close
+            cameraModalEl.addEventListener('hidden.bs.modal', function() {
+                stopStream();
+                // Reset Modal UI
+                video.style.display = 'none';
+                canvas.style.display = 'none';
+                placeholder.style.display = 'flex';
+                placeholder.innerHTML =
+                    '<div><i class="fas fa-camera fa-3x mb-3"></i><br>Memulai kamera...</div>';
+                captureBtn.disabled = true;
+                captureBtn.classList.remove('d-none');
+                retakeModalBtn.classList.add('d-none');
+                saveBtn.classList.add('d-none');
+            });
+
+            // Main Form Submit Validation
             form.addEventListener('submit', function(event) {
-                // Validasi client-side sebelum submit
-                const requiredFields = form.querySelectorAll('[required]');
                 let isValid = true;
 
+                // Check required fields
+                const requiredFields = form.querySelectorAll('[required]');
                 requiredFields.forEach(field => {
                     if (!field.value.trim()) {
                         field.reportValidity();
@@ -146,20 +332,31 @@
                     }
                 });
 
+                // Check file input specifically
+                if (fileInput.files.length === 0) {
+                    errorMessage.classList.remove('d-none');
+                    // Scroll to error
+                    previewContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    isValid = false;
+                } else if (fileInput.files[0].size > 2 * 1024 * 1024) {
+                    alert('Ukuran foto terlalu besar (Max 2MB). Silakan ambil ulang.');
+                    isValid = false;
+                }
+
                 if (!isValid) {
                     event.preventDefault();
-                    event.stopPropagation();
                     return false;
                 }
 
-                // Tampilkan loading indicator
+                // Show loading indicator
                 const submitButton = form.querySelector('button[type="submit"]');
                 if (submitButton) {
                     submitButton.disabled = true;
                     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
                 }
-
-                return true;
             });
         });
     </script>
@@ -174,24 +371,11 @@
         .btn i {
             margin-right: 5px;
         }
+
+        #camera-canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
     </style>
-@endpush
-
-@push('scripts')
-    <script>
-        // Validasi form sebelum submit
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const fileInput = document.querySelector('input[type="file"]');
-            const fileSize = fileInput.files[0] ? fileInput.files[0].size / 1024 / 1024 : 0; // in MB
-
-            if (fileSize > 2) {
-                e.preventDefault();
-                alert('Ukuran file melebihi 2MB. Silakan pilih file yang lebih kecil.');
-                return false;
-            }
-
-            // Validasi lainnya bisa ditambahkan di sini
-            return true;
-        });
-    </script>
 @endpush

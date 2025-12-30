@@ -1089,10 +1089,10 @@
                                             <div class="text-center mb-3">
                                                 ${item.serah_terima && item.serah_terima.foto_berkas ? 
                                                     `<img src="${item.serah_terima.foto_berkas.startsWith('http') ? '' : '/storage/'}${item.serah_terima.foto_berkas}" 
-                                                                          class="img-fluid img-thumbnail document-preview mb-2" 
-                                                                          style="max-height: 200px; cursor: pointer;" 
-                                                                          onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                          onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
+                                                                                                  class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                                                  style="max-height: 200px; cursor: pointer;" 
+                                                                                                  onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                  onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
                                                     '<div class="text-muted py-4 border rounded">Belum ada foto berkas diunggah</div>'
                                                 }
                                             </div>
@@ -1102,11 +1102,11 @@
                                                     <p class="text-muted small mb-0">Unggah foto berkas serah terima dalam format JPG, PNG (maks. 2MB)</p>
                                                 </div>
                                                 <div>
-                                                    <button type="button" class="btn btn-primary upload-doc" 
+                                                    
+                                                    <button type="button" class="btn btn-info camera-doc text-white ms-1" 
                                                             data-doc-type="foto_berkas" 
                                                             data-item-id="${item.id}">
-                                                        <i class="fas fa-upload me-1"></i>
-                                                        ${item.serah_terima && item.serah_terima.foto_berkas ? 'Ganti Foto' : 'Unggah Foto'}
+                                                        <i class="fas fa-camera me-1"></i> Ambil Foto
                                                     </button>
                                                 </div>
                                             </div>
@@ -1128,17 +1128,17 @@
                                                         <div class="card-body text-center">
                                                             ${item.foto_ktp ? 
                                                                 `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                      class="img-fluid img-thumbnail document-preview" 
-                                                                                                                                                                                                      style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                                                                      onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                                                                      onclick="viewImage(this)">
-                                                                                                                                                                                                 <div class="mt-2">
-                                                                                                                                                                                                     <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                        target="_blank" 
-                                                                                                                                                                                                        class="btn btn-sm btn-outline-primary mt-2">
-                                                                                                                                                                                                         <i class="fas fa-download"></i> Unduh KTP
-                                                                                                                                                                                                     </a>
-                                                                                                                                                                                                 </div>`
+                                                                                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
+                                                                                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
+                                                                                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                                                                                                                              onclick="viewImage(this)">
+                                                                                                                                                                                                                         <div class="mt-2">
+                                                                                                                                                                                                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                                                                                                                                                                                                target="_blank" 
+                                                                                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
+                                                                                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KTP
+                                                                                                                                                                                                                             </a>
+                                                                                                                                                                                                                         </div>`
                                                                 : 
                                                                 '<div class="text-muted">Tidak ada foto KTP</div>'
                                                             }
@@ -1186,7 +1186,7 @@
                                                     <tr>
                                                         <th>RT/RW</th>
                                                         <td>${item.rt || '-'}/${item.rw || '-'}</td>
-                                                    </tr>a
+                                                    </tr>
                                                     <tr>
                                                         <th>Kelurahan/Desa</th>
                                                         <td>${item.kelurahan || '-'}</td>
@@ -1241,11 +1241,11 @@
                                                         </td>
                                                     </tr>
                                                     ${item.verification_notes ? `
-                                                                                                                                                                                    <tr>
-                                                                                                                                                                                        <th>Catatan Verifikasi</th>
-                                                                                                                                                                                        <td>${item.verification_notes}</td>
-                                                                                                                                                                                    </tr>
-                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                <th>Catatan Verifikasi</th>
+                                                                                                                                                                                                                <td>${item.verification_notes}</td>
+                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                            ` : ''}
                                                 </table>
                                             </div>
                                         </div>
@@ -1397,79 +1397,213 @@
                         return;
                     }
 
-                    const formData = new FormData();
-                    formData.append('_token', '{{ csrf_token() }}');
-                    formData.append('id', itemId);
-                    formData.append('doc_type', docType);
-                    formData.append('document', file);
-
-                    // Show loading state
-                    $button.prop('disabled', true).html(
-                        '<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
-
-                    // Determine the upload URL based on document type
-                    const uploadUrl = docType === 'foto_berkas' ?
-                        '/admin/serah-terima/upload-document' :
-                        '/admin/personal-data/upload-document';
-
-                    // Upload file
-                    $.ajax({
-                        url: uploadUrl,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.success) {
-                                // Update the document preview in the card
-                                const previewContainer = $card.find('.document-preview-container');
-                                if (previewContainer.length) {
-                                    if (response.file_path) {
-                                        const imgSrc = response.file_path.startsWith('http') ?
-                                            response.file_path :
-                                            `/storage/${response.file_path}`;
-
-                                        previewContainer.html(`
-                                                                <img src="${imgSrc}" 
-                                                                     class="img-fluid img-thumbnail document-preview mb-2" 
-                                                                     style="max-height: 200px; cursor: pointer;" 
-                                                                     onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                     onclick="viewDocument('${response.file_path}')
-                                                            `);
-                                    }
-                                }
-
-                                // Show success message
-                                showToast('success', 'Dokumen berhasil diunggah');
-
-                                // Close any open modals
-                                $('.modal').modal('hide');
-
-                                // Reload the page to reflect changes
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 1000);
-                            } else {
-                                showToast('error', response.message || 'Gagal mengunggah dokumen');
-                            }
-                        },
-                        error: function(xhr) {
-                            let errorMessage = 'Terjadi kesalahan saat mengunggah dokumen';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
-                            }
-                            showToast('error', errorMessage);
-                        },
-                        complete: function() {
-                            $button.html('<i class="fas fa-upload me-1"></i> Unggah').prop(
-                                'disabled', false);
-                        }
-                    });
+                    uploadFile(file, docType, itemId, $button, $card);
                 });
 
                 // Trigger file input click
                 $fileInput.trigger('click');
             });
+
+            // Handle camera open
+            $(document).on('click', '.camera-doc', function(e) {
+                e.preventDefault();
+                const docType = $(this).data('doc-type');
+                const itemId = $(this).data('item-id');
+                const $card = $(this).closest('.card');
+
+                const cameraModalHtml = `
+                    <div class="modal fade" id="cameraModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-lg" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Ambil Foto</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <div class="video-container position-relative bg-dark" style="min-height: 300px;">
+                                        <video id="camera-stream" autoplay playsinline style="width: 100%; height: auto; display: none;"></video>
+                                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                                        <div id="camera-placeholder" class="d-flex justify-content-center align-items-center text-white" style="height: 300px;">
+                                            <div><i class="fas fa-camera fa-3x mb-3"></i><br>Memulai kamera...</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="button" class="btn btn-primary" id="capture-btn" disabled>
+                                            <i class="fas fa-camera"></i> Ambil
+                                        </button>
+                                        <button type="button" class="btn btn-success d-none" id="retake-btn">
+                                            <i class="fas fa-redo"></i> Ulangi
+                                        </button>
+                                        <button type="button" class="btn btn-info text-white d-none" id="save-photo-btn">
+                                            <i class="fas fa-save"></i> Simpan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Remove existing camera modal if any
+                $('#cameraModal').remove();
+                $('body').append(cameraModalHtml);
+
+                const cameraModal = new bootstrap.Modal(document.getElementById('cameraModal'));
+                cameraModal.show();
+
+                const video = document.getElementById('camera-stream');
+                const canvas = document.getElementById('camera-canvas');
+                const placeholder = document.getElementById('camera-placeholder');
+                const captureBtn = document.getElementById('capture-btn');
+                const retakeBtn = document.getElementById('retake-btn');
+                const saveBtn = document.getElementById('save-photo-btn');
+                let stream = null;
+
+                // Start camera
+                navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'environment'
+                        }
+                    })
+                    .then(function(mediaStream) {
+                        stream = mediaStream;
+                        video.srcObject = mediaStream;
+                        video.onloadedmetadata = function(e) {
+                            video.play();
+                            video.style.display = 'block';
+                            placeholder.style.display = 'none';
+                            captureBtn.disabled = false;
+                        };
+                    })
+                    .catch(function(err) {
+                        console.error("Error accessing camera: ", err);
+                        placeholder.innerHTML =
+                            '<div><i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i><br>Gagal mengakses kamera: ' +
+                            err.message + '</div>';
+                    });
+
+                // Capture photo
+                $(captureBtn).on('click', function() {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+
+                    video.style.display = 'none';
+                    canvas.style.display = 'block';
+                    canvas.style.width = '100%';
+
+                    $(this).addClass('d-none');
+                    $(retakeBtn).removeClass('d-none');
+                    $(saveBtn).removeClass('d-none');
+                });
+
+                // Retake photo
+                $(retakeBtn).on('click', function() {
+                    video.style.display = 'block';
+                    canvas.style.display = 'none';
+
+                    $(this).addClass('d-none');
+                    $(saveBtn).addClass('d-none');
+                    $(captureBtn).removeClass('d-none');
+                });
+
+                // Save photo
+                $(saveBtn).on('click', function() {
+                    canvas.toBlob(function(blob) {
+                        const file = new File([blob], "captured_photo.jpg", {
+                            type: "image/jpeg"
+                        });
+
+                        // Close modal and stop stream
+                        cameraModal.hide();
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+
+                        // Upload file
+                        uploadFile(file, docType, itemId, $(`.camera-doc[data-item-id="${itemId}"]`),
+                            $card);
+                    }, 'image/jpeg', 0.8);
+                });
+
+                // Clean up on close
+                $('#cameraModal').on('hidden.bs.modal', function() {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                    $(this).remove();
+                });
+            });
+
+            // Refactored upload logic for reuse
+            function uploadFile(file, docType, itemId, $button, $card) {
+                const formData = new FormData();
+                formData.append('_token', '{{ csrf_token() }}');
+                formData.append('id', itemId);
+                formData.append('doc_type', docType);
+                formData.append('document', file);
+
+                // Show loading state
+                const originalBtnText = $button.html();
+                $button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Mengunggah...');
+
+                // Determine the upload URL based on document type
+                const uploadUrl = docType === 'foto_berkas' ?
+                    '/admin/serah-terima/upload-document' :
+                    '/admin/personal-data/upload-document';
+
+                $.ajax({
+                    url: uploadUrl,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            // Update the document preview in the card
+                            const previewContainer = $card.find('.document-preview-container');
+                            if (previewContainer.length) {
+                                if (response.file_path) {
+                                    const imgSrc = response.file_path.startsWith('http') ?
+                                        response.file_path :
+                                        `/storage/${response.file_path}`;
+
+                                    previewContainer.html(`
+                                                            <img src="${imgSrc}" 
+                                                                 class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                 style="max-height: 200px; cursor: pointer;" 
+                                                                 onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                 onclick="viewDocument('${response.file_path}')
+                                                        `);
+                                }
+                            }
+
+                            // Show success message
+                            showToast('success', 'Dokumen berhasil diunggah');
+
+                            // Close any open modals
+                            $('#detailModal').modal('hide');
+
+                            // Reload the page to reflect changes
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            showToast('error', response.message || 'Gagal mengunggah dokumen');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Terjadi kesalahan saat mengunggah dokumen';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        showToast('error', errorMessage);
+                    },
+                    complete: function() {
+                        $button.html(originalBtnText).prop('disabled', false);
+                    }
+                });
+            }
 
             // Helper function to show toast notifications
             function showToast(type, message) {
