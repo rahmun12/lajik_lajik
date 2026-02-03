@@ -138,6 +138,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         ->only(['index', 'exportExcel']);
     Route::get('rekapitulasi-penyerahan/export', 'App\\Http\\Controllers\\Admin\\RekapitulasiPenyerahanController@export')
         ->name('rekapitulasi-penyerahan.export');
+
+    // Manage Users
+    Route::resource('users', 'App\Http\Controllers\Admin\UserController')
+        ->names('users');
 });
 
 // File access route

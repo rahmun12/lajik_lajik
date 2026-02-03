@@ -54,7 +54,7 @@ class UserController extends Controller
             'role' => $validated['role'],
         ]);
 
-        return redirect()->route('admin_inti.users.index')
+        return redirect()->route('admin.users.index')
                         ->with('success', 'User created successfully.');
     }
 
@@ -103,7 +103,7 @@ class UserController extends Controller
 
         $user->update($updateData);
 
-        return redirect()->route('admin_inti.users.index')
+        return redirect()->route('admin.users.index')
                         ->with('success', 'User updated successfully');
     }
 
@@ -141,7 +141,7 @@ class UserController extends Controller
             
             DB::commit();
             
-            return redirect()->route('admin_inti.users.index')
+            return redirect()->route('admin.users.index')
                             ->with('success', 'User berhasil dihapus');
                             
         } catch (\Exception $e) {

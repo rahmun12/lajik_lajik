@@ -19,17 +19,11 @@ class AuthenticatedSessionController extends Controller
             'password' => ['required'],
         ]);
 
-        // For development only - auto create user if not exists
-        $user = \App\Models\User::firstOrCreate(
-            ['email' => $request->email],
-            [
-                'name' => explode('@', $request->email)[0],
-                'password' => bcrypt($request->password),
-                'role' => 'user'
-            ]
-        );
-
-        Auth::login($user, $request->boolean('remember'));
+        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
 
         $request->session()->regenerate();
 

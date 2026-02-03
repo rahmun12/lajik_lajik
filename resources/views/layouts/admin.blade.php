@@ -192,6 +192,12 @@
                             <i class="fas fa-clipboard-list me-2"></i> Rekapitulasi Penyerahan
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->is('admin/users*') ? 'active' : '' }}"
+                            href="{{ route('admin.users.index') }}">
+                            <i class="fas fa-users me-2"></i> Manajemen User
+                        </a>
+                    </li>
                     <li class="nav-item mt-auto">
                         <a class="nav-link" href="#"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
