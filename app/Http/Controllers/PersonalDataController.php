@@ -383,4 +383,26 @@ class PersonalDataController extends Controller
             'data' => $verification
         ]);
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        try {
+            $personalData = PersonalData::findOrFail($id);
+            $personalData->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil dihapus.'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting personal data: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data.'
+            ], 500);
+        }
+    }
 }

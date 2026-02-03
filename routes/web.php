@@ -81,6 +81,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::post('/personal-data/toggle-requirement', [PersonalDataController::class, 'toggleRequirementVerification'])
         ->name('personal-data.toggle-requirement');
 
+    Route::delete('/personal-data/{id}', [PersonalDataController::class, 'destroy'])
+        ->name('personal-data.destroy');
+
     // Serah Terima Routes
     Route::resource('serah-terima', 'App\Http\Controllers\Admin\SerahTerimaController')
         ->names('serah-terima')

@@ -23,12 +23,15 @@ class RekapitulasiPenyerahanExport implements FromCollection, WithHeadings, With
     public function headings(): array
     {
         return [
-            'No',
-            'Tanggal Penyerahan',
-            'Nama Pemohon',
-            'Alamat',
-            'No. SK Izin',
-            'Petugas Lajik',
+            ['Rekapitulasi Penyerahan SK Perizinan Layanan Khusus'],
+            [
+                'No',
+                'Tanggal Penyerahan',
+                'Nama Pemohon',
+                'Alamat',
+                'No. SK Izin',
+                'Petugas Lajik',
+            ]
         ];
     }
 
@@ -64,9 +67,17 @@ class RekapitulasiPenyerahanExport implements FromCollection, WithHeadings, With
 
     public function styles(Worksheet $sheet)
     {
+        // Merge cells for title
+        $sheet->mergeCells('A1:F1');
+
         return [
-            // Style the first row as bold text
+            // Style the title row
             1 => [
+                'font' => ['bold' => true, 'size' => 14],
+                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ],
+            // Style the header row
+            2 => [
                 'font' => ['bold' => true],
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,

@@ -127,6 +127,10 @@
                                                 data-item="{{ json_encode($item) }}">
                                                 <i class="fas fa-eye"></i> Detail
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-danger delete-btn"
+                                                data-id="{{ $item->id }}">
+                                                <i class="fas fa-trash"></i> Hapus
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -652,7 +656,7 @@
                                 'Kolom berhasil diverifikasi' :
                                 'Status verifikasi kolom berhasil dihapus';
 
-                            toastr.success(message);
+                            showToast('success', message);
                         }
                     },
                     error: function(xhr) {
@@ -663,7 +667,7 @@
                         $checkbox.prop('disabled', false);
 
                         // Show error message
-                        toastr.error('Terjadi kesalahan saat memperbarui status verifikasi');
+                        showToast('error', 'Terjadi kesalahan saat memperbarui status verifikasi');
 
                         // Revert the label class
                         const $label = $(`label[for="${field}-${itemId}"]`);
@@ -896,15 +900,15 @@
                         },
                         success: function(response) {
                             if (response.success) {
-                                toastr.success('Status verifikasi berhasil disimpan');
+                                showToast('success', 'Status verifikasi berhasil disimpan');
                             } else {
-                                toastr.error('Gagal menyimpan status verifikasi');
+                                showToast('error', 'Gagal menyimpan status verifikasi');
                                 // Revert? It's a radio, hard to revert without prev state. 
                                 // Just keep it as is or reload?
                             }
                         },
                         error: function() {
-                            toastr.error('Terjadi kesalahan saat menyimpan');
+                            showToast('error', 'Terjadi kesalahan saat menyimpan');
                         },
                         complete: function() {
                             $group.prop('disabled', false);
@@ -1089,10 +1093,10 @@
                                             <div class="text-center mb-3">
                                                 ${item.serah_terima && item.serah_terima.foto_berkas ? 
                                                     `<img src="${item.serah_terima.foto_berkas.startsWith('http') ? '' : '/storage/'}${item.serah_terima.foto_berkas}" 
-                                                                                                  class="img-fluid img-thumbnail document-preview mb-2" 
-                                                                                                  style="max-height: 200px; cursor: pointer;" 
-                                                                                                  onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                  onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
+                                                                                                                          class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                                                                          style="max-height: 200px; cursor: pointer;" 
+                                                                                                                          onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                          onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
                                                     '<div class="text-muted py-4 border rounded">Belum ada foto berkas diunggah</div>'
                                                 }
                                             </div>
@@ -1128,17 +1132,17 @@
                                                         <div class="card-body text-center">
                                                             ${item.foto_ktp ? 
                                                                 `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
-                                                                                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                                                                                              onclick="viewImage(this)">
-                                                                                                                                                                                                                         <div class="mt-2">
-                                                                                                                                                                                                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                                                target="_blank" 
-                                                                                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
-                                                                                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KTP
-                                                                                                                                                                                                                             </a>
-                                                                                                                                                                                                                         </div>`
+                                                                                                                                                                                                                                                      class="img-fluid img-thumbnail document-preview" 
+                                                                                                                                                                                                                                                      style="max-height: 200px; cursor: pointer;" 
+                                                                                                                                                                                                                                                      onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                                                                                                                                                      onclick="viewImage(this)">
+                                                                                                                                                                                                                                                 <div class="mt-2">
+                                                                                                                                                                                                                                                     <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                                                                                                                                                                                                                        target="_blank" 
+                                                                                                                                                                                                                                                        class="btn btn-sm btn-outline-primary mt-2">
+                                                                                                                                                                                                                                                         <i class="fas fa-download"></i> Unduh KTP
+                                                                                                                                                                                                                                                     </a>
+                                                                                                                                                                                                                                                 </div>`
                                                                 : 
                                                                 '<div class="text-muted">Tidak ada foto KTP</div>'
                                                             }
@@ -1241,11 +1245,11 @@
                                                         </td>
                                                     </tr>
                                                     ${item.verification_notes ? `
-                                                                                                                                                                                                            <tr>
-                                                                                                                                                                                                                <th>Catatan Verifikasi</th>
-                                                                                                                                                                                                                <td>${item.verification_notes}</td>
-                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                            ` : ''}
+                                                                                                                                                                                                                                    <tr>
+                                                                                                                                                                                                                                        <th>Catatan Verifikasi</th>
+                                                                                                                                                                                                                                        <td>${item.verification_notes}</td>
+                                                                                                                                                                                                                                    </tr>
+                                                                                                                                                                                                                                    ` : ''}
                                                 </table>
                                             </div>
                                         </div>
@@ -1676,5 +1680,42 @@
                     $(this).remove();
                 });
             }
+
+            // Handle delete button click
+            $(document).on('click', '.delete-btn', function() {
+                const id = $(this).data('id');
+                const $button = $(this);
+
+                if (confirm('Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')) {
+                    $button.prop('disabled', true);
+                    $button.html(
+                        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menghapus...'
+                    );
+
+                    $.ajax({
+                        url: '/admin/personal-data/' + id,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast('success', response.message);
+                                // Remove the row from the table
+                                var table = $('#verificationTable').DataTable();
+                                table.row($button.closest('tr')).remove().draw();
+                            } else {
+                                showToast('error', response.message || 'Gagal menghapus data.');
+                                $button.prop('disabled', false).html('<i class="fas fa-trash"></i> Hapus');
+                            }
+                        },
+                        error: function(xhr) {
+                            showToast('error', 'Terjadi kesalahan saat menghapus data.');
+                            console.error(xhr.responseText);
+                            $button.prop('disabled', false).html('<i class="fas fa-trash"></i> Hapus');
+                        }
+                    });
+                }
+            });
         </script>
     @endpush

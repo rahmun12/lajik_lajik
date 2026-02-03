@@ -23,19 +23,22 @@ class RekapitulasiPenyerahanExport implements FromCollection, WithHeadings, With
     public function headings(): array
     {
         return [
-            'No',
-            'Tanggal Penyerahan',
-            'Nama Pemohon',
-            'Alamat',
-            'No. SK Izin',
-            'Petugas Lajik',
+            ['Rekapitulasi Penerimaan SK Permohonan Perizinan Layanan Khusus'],
+            [
+                'No',
+                'Tanggal Penyerahan',
+                'Nama Pemohon',
+                'Alamat',
+                'No. SK Izin',
+                'Petugas Lajik',
+            ]
         ];
     }
 
     public function map($item): array
     {
         static $i = 1;
-        
+
         // Build full address from components
         $alamat = [
             $item->personalData->alamat_jalan ?? '',
@@ -46,7 +49,7 @@ class RekapitulasiPenyerahanExport implements FromCollection, WithHeadings, With
             $item->personalData->kode_pos ?? ''
         ];
         $alamat_lengkap = implode(', ', array_filter($alamat));
-        
+
         return [
             $i++,
             $item->tanggal_penyerahan ? \Carbon\Carbon::parse($item->tanggal_penyerahan)->format('d/m/Y') : '-',
@@ -64,9 +67,17 @@ class RekapitulasiPenyerahanExport implements FromCollection, WithHeadings, With
 
     public function styles(Worksheet $sheet)
     {
+        // Merge cells for title
+        $sheet->mergeCells('A1:F1');
+
         return [
-            // Style the first row as bold text
+            // Style the title row
             1 => [
+                'font' => ['bold' => true, 'size' => 14],
+                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+            ],
+            // Style the header row
+            2 => [
                 'font' => ['bold' => true],
                 'fill' => [
                     'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
