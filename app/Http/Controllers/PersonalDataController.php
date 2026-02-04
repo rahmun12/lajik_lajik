@@ -131,10 +131,11 @@ class PersonalDataController extends Controller
                 $wibTime = Carbon::now('Asia/Jakarta');
                 $jenisIzin = JenisIzin::find($request->jenis_izin);
 
+                $kabupatenName = $locationService->getKabupatenName($personalData->kabupaten_kota);
                 $kecamatanName = $locationService->getKecamatanName($personalData->kecamatan);
                 $kelurahanName = $locationService->getKelurahanName($personalData->kelurahan);
 
-                $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
+                $message = "📢 <b>PENGAJUAN IZIN BARU</b>\n\n" .
                     "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
                     "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
                     "👤 Nama: " . $personalData->nama . "\n" .
@@ -144,6 +145,7 @@ class PersonalDataController extends Controller
                         "/RW " . $personalData->rw . "\n" : "\n") .
                     "🏘️ Desa/Kel: " . $kelurahanName . "\n" .
                     "🏙️ Kecamatan: " . $kecamatanName . "\n" .
+                    "🏛️ Kab/Kota: " . $kabupatenName . "\n" .
                     "📱 No HP: " . $personalData->no_telp . "\n" .
                     "♿ Kaum Rentan: " . ($personalData->kaum_rentan ?? '-') . "\n" .
                     "📋 Jenis Izin: " . ($jenisIzin ? $jenisIzin->nama_izin : '-') . "\n\n" .

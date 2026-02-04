@@ -301,4 +301,18 @@ class LocationService
         $kelurahan = collect($this->kelurahans)->firstWhere('id', $id);
         return $kelurahan ? $kelurahan['name'] : $id;
     }
+
+    public function getKabupatenName($id)
+    {
+        $kabupaten = collect($this->kabupatenKota)->firstWhere('id', $id);
+        return $kabupaten ? $kabupaten['name'] : $id;
+    }
+
+    public function getKabupatenNameByKecamatanId($kecamatanId)
+    {
+        $kecamatan = collect($this->kecamatans)->firstWhere('id', $kecamatanId);
+        if (!$kecamatan) return null;
+        
+        return $this->getKabupatenName($kecamatan['kabupaten_id']);
+    }
 }

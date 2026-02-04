@@ -22,6 +22,7 @@ class PersonalData extends Model
         'rw',
         'kecamatan',
         'kelurahan',
+        'kabupaten_kota',
         'kode_pos',
         'no_telp',
         'no_ktp',

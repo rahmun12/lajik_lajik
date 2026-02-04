@@ -9,6 +9,7 @@ use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Services\LocationService;
 
 class IzinPengajuanController extends Controller
 {
@@ -42,12 +43,26 @@ class IzinPengajuanController extends Controller
 
         // Send Telegram notification
         $telegramService = new TelegramService();
+        $locationService = new LocationService();
         $wibTime = Carbon::now('Asia/Jakarta');
-        $message = "📢 *PENGAJUAN IZIN BARU*\n\n" .
+        
+        $kabupatenName = $locationService->getKabupatenName($personalData->kabupaten_kota);
+        $kecamatanName = $locationService->getKecamatanName($personalData->kecamatan);
+        $kelurahanName = $locationService->getKelurahanName($personalData->kelurahan);
+
+        $message = "📢 <b>PENGAJUAN IZIN BARU</b>\n\n" .
                   "📅 Tanggal: " . $wibTime->translatedFormat('l, d F Y') . "\n" .
                   "🕒 Waktu: " . $wibTime->format('H:i:s') . " WIB\n" .
                   "👤 Nama: " . $personalData->nama . "\n" .
-                  "🏠 Alamat: " . $personalData->alamat_jalan . "\n" .
+                  "🏠 Alamat: " . $personalData->alamat_jalan . 
+                  (($personalData->rt || $personalData->rw) ? 
+                    " RT " . $personalData->rt . 
+                    "/RW " . $personalData->rw . "\n" : "\n") .
+                  "🏘️ Desa/Kel: " . $kelurahanName . "\n" .
+                  "🏙️ Kecamatan: " . $kecamatanName . "\n" .
+                  "🏛️ Kab/Kota: " . $kabupatenName . "\n" .
+                  "📱 No HP: " . $personalData->no_telp . "\n" .
+                  "♿ Kaum Rentan: " . ($personalData->kaum_rentan ?? '-') . "\n" .
                   "📋 Jenis Izin: " . $jenisIzin->nama_izin . "\n\n" .
                   "Segera lakukan verifikasi data pengajuan ini.";
 

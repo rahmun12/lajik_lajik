@@ -1,4 +1,5 @@
 @extends('layouts.admin')
+@inject('locationService', 'App\Services\LocationService')
 
 @section('admin-content')
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -33,6 +34,20 @@
                         </thead>
                         <tbody>
                             @foreach ($data as $item)
+                                @php
+                                    // Resolve Kabupaten first (using Kecamatan ID if Kabupaten is missing)
+                                    $kabupatenName = $locationService->getKabupatenName($item->kabupaten_kota);
+                                    if (!$kabupatenName && $item->kecamatan) {
+                                        $kabupatenName = $locationService->getKabupatenNameByKecamatanId(
+                                            $item->kecamatan,
+                                        );
+                                    }
+                                    $item->kabupaten_kota = $kabupatenName;
+
+                                    // Then resolve others
+                                    $item->kelurahan = $locationService->getKelurahanName($item->kelurahan);
+                                    $item->kecamatan = $locationService->getKecamatanName($item->kecamatan);
+                                @endphp
                                 <tr data-id="{{ $item->id }}">
                                     <td></td> <!-- Leave empty, will be populated by DataTables -->
                                     <td>{{ $item->created_at->format('d/m/Y H:i') }}</td>
@@ -1093,10 +1108,10 @@
                                             <div class="text-center mb-3">
                                                 ${item.serah_terima && item.serah_terima.foto_berkas ? 
                                                     `<img src="${item.serah_terima.foto_berkas.startsWith('http') ? '' : '/storage/'}${item.serah_terima.foto_berkas}" 
-                                                                                                                          class="img-fluid img-thumbnail document-preview mb-2" 
-                                                                                                                          style="max-height: 200px; cursor: pointer;" 
-                                                                                                                          onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                          onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
+                                                                                                                                                  class="img-fluid img-thumbnail document-preview mb-2" 
+                                                                                                                                                  style="max-height: 200px; cursor: pointer;" 
+                                                                                                                                                  onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                                                  onclick="viewDocument('${item.serah_terima.foto_berkas}')">` :
                                                     '<div class="text-muted py-4 border rounded">Belum ada foto berkas diunggah</div>'
                                                 }
                                             </div>
@@ -1132,17 +1147,17 @@
                                                         <div class="card-body text-center">
                                                             ${item.foto_ktp ? 
                                                                 `<img src="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                                                                      class="img-fluid img-thumbnail document-preview" 
-                                                                                                                                                                                                                                                      style="max-height: 200px; cursor: pointer;" 
-                                                                                                                                                                                                                                                      onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
-                                                                                                                                                                                                                                                      onclick="viewImage(this)">
-                                                                                                                                                                                                                                                 <div class="mt-2">
-                                                                                                                                                                                                                                                     <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
-                                                                                                                                                                                                                                                        target="_blank" 
-                                                                                                                                                                                                                                                        class="btn btn-sm btn-outline-primary mt-2">
-                                                                                                                                                                                                                                                         <i class="fas fa-download"></i> Unduh KTP
-                                                                                                                                                                                                                                                     </a>
-                                                                                                                                                                                                                                                 </div>`
+                                                                                                                                                                                                                                                                              class="img-fluid img-thumbnail document-preview" 
+                                                                                                                                                                                                                                                                              style="max-height: 200px; cursor: pointer;" 
+                                                                                                                                                                                                                                                                              onerror="this.onerror=null; this.src='/images/image-not-found.jpg';"
+                                                                                                                                                                                                                                                                              onclick="viewImage(this)">
+                                                                                                                                                                                                                                                                         <div class="mt-2">
+                                                                                                                                                                                                                                                                             <a href="${item.foto_ktp.startsWith('http') ? '' : '/storage/'}${item.foto_ktp}" 
+                                                                                                                                                                                                                                                                                target="_blank" 
+                                                                                                                                                                                                                                                                                class="btn btn-sm btn-outline-primary mt-2">
+                                                                                                                                                                                                                                                                                 <i class="fas fa-download"></i> Unduh KTP
+                                                                                                                                                                                                                                                                             </a>
+                                                                                                                                                                                                                                                                         </div>`
                                                                 : 
                                                                 '<div class="text-muted">Tidak ada foto KTP</div>'
                                                             }
@@ -1245,11 +1260,11 @@
                                                         </td>
                                                     </tr>
                                                     ${item.verification_notes ? `
-                                                                                                                                                                                                                                    <tr>
-                                                                                                                                                                                                                                        <th>Catatan Verifikasi</th>
-                                                                                                                                                                                                                                        <td>${item.verification_notes}</td>
-                                                                                                                                                                                                                                    </tr>
-                                                                                                                                                                                                                                    ` : ''}
+                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                <th>Catatan Verifikasi</th>
+                                                                                                                                                                                                                                                                <td>${item.verification_notes}</td>
+                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                            ` : ''}
                                                 </table>
                                             </div>
                                         </div>

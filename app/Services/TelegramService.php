@@ -13,9 +13,9 @@ class TelegramService
 
     public function __construct()
     {
-        $this->botToken = '7955493856:AAGqQuY6wo-5VUSRBlgVGqovO3MladC3dTI';
+        $this->botToken = '8446078103:AAFCdpMVYdsIvVPT4sfFjjHvOKZGvt0XI5E';
         // Ganti dengan chat ID atau group ID tujuan
-        $this->chatId = '-4980842393'; // Contoh: '123456789'
+        $this->chatId = '-1003760207899'; // Fixed supergroup ID prefix
         $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}/sendMessage";
     }
 
