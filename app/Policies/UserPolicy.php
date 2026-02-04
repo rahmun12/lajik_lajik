@@ -14,7 +14,7 @@ class UserPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->role === 'admin_inti';
+        return $user->role === 'admin';
     }
 
     /**
@@ -22,7 +22,8 @@ class UserPolicy
      */
     public function view(User $user, User $model)
     {
-        return $user->role === 'admin_inti' || $user->id === $model->id;
+        // Admin can view anyone, regular users can only view themselves
+        return $user->role === 'admin' || $user->id === $model->id;
     }
 
     /**
@@ -30,7 +31,7 @@ class UserPolicy
      */
     public function create(User $user)
     {
-        return $user->role === 'admin_inti';
+        return $user->role === 'admin';
     }
 
     /**
@@ -38,7 +39,13 @@ class UserPolicy
      */
     public function update(User $user, User $model)
     {
-        return $user->role === 'admin_inti' || $user->id === $model->id;
+        // Admin can update anyone except admin_inti
+        if ($user->role === 'admin') {
+            return $model->role !== 'admin_inti';
+        }
+        
+        // Users can update themselves
+        return $user->id === $model->id;
     }
 
     /**
@@ -51,7 +58,12 @@ class UserPolicy
             return false;
         }
         
-        return $user->role === 'admin_inti';
+        // Admin can delete anyone except admin_inti
+        if ($user->role === 'admin') {
+            return $model->role !== 'admin_inti';
+        }
+        
+        return false;
     }
 
     /**
@@ -59,7 +71,7 @@ class UserPolicy
      */
     public function restore(User $user, User $model)
     {
-        return $user->role === 'admin_inti';
+        return $user->role === 'admin';
     }
 
     /**
@@ -67,6 +79,6 @@ class UserPolicy
      */
     public function forceDelete(User $user, User $model)
     {
-        return $user->role === 'admin_inti';
+        return $user->role === 'admin' && $model->role !== 'admin_inti';
     }
 }
