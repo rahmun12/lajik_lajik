@@ -284,7 +284,7 @@
         <!-- Footer -->
         <footer
             class="mt-20 py-8 text-base text-gray-700 font-medium border-t border-gray-300 w-full text-center fade-in [animation-delay:1.2s]">
-            &copy; {{ date('Y') }} <span class="text-gray-800 font-semibold">Layanan Izin Khusus</span>. Semua hak
+            &copy; 2025 <span class="text-gray-800 font-semibold">Layanan Izin Khusus</span>. Semua hak
             dilindungi.
         </footer>
 
